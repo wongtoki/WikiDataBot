@@ -1,8 +1,10 @@
 import requests 
 import json
 
+
 KEY = 'kLhZweLdy1'
 HOST = ' http://robot.tokisbackyard.com'
+# HOST = 'http://127.0.0.1:57158'
 
 HEADERS = {
 	"Authorization":KEY,
@@ -10,8 +12,10 @@ HEADERS = {
 }
 
 class Agent:
-	def __init__(self):
-		pass
+
+	def __init__(self, id, lang):
+		self.id = id
+		self.lang = lang
 
 	#Api call
 	#query params: lang(languageCode) & id(sessionid)
@@ -20,8 +24,8 @@ class Agent:
 	#	context (a dialogflow feature, I'll explain later.)
 	# }
 
-	def ask_json(self, text, lang='en', sessionId='test', context=""):
-		host = f'{HOST}/ask?lang={lang}&id={sessionId}'
+	def ask_json(self, text, context=""):
+		host = f'{HOST}/ask?lang={self.lang}&id={self.id}'
 		
 		body = {
 			'query':text,
@@ -31,13 +35,13 @@ class Agent:
 		res = requests.post(host, json=body, headers=HEADERS)
 		return res
 
-	def ask_response_text(self, text, lang='en', sessionId='test'):
-		res = self.ask_json(text, lang, sessionId)
+	def ask_response_text(self, text):
+		res = self.ask_json(text)
 		res = json.loads(res.text)["fulfillmentMessages"]
 		return res[0]['text']['text'][0]
 
-	def ask_intent(self, text, lang='en', sessionId='test'):
-		res = self.ask_json(text, lang, sessionId)
+	def ask_intent(self, text):
+		res = self.ask_json(text)
 		res = json.loads(res.text)["intent"]
 		return res
 
