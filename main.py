@@ -2,13 +2,14 @@ from agent import Agent
 import requests
 import json
 
-agent = Agent('test','en')
+agent = Agent('SDHSJALSN','en')
 
 def console():
 	userInput = input("Talk to me:")
 	if userInput != "EXIT":
 		response = agent.ask_json(userInput)
-		print(response.text)
+		parsed = json.loads(response.text)
+		print(json.dumps(parsed, indent=2, sort_keys=True))
 		console()
 
 def main():

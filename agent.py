@@ -3,7 +3,7 @@ import json
 
 
 KEY = 'kLhZweLdy1'
-HOST = ' http://robot.tokisbackyard.com'
+HOST = ' https://robot.tokisbackyard.com'
 # HOST = 'http://127.0.0.1:57158'
 
 HEADERS = {
@@ -44,6 +44,13 @@ class Agent:
 		res = self.ask_json(text)
 		res = json.loads(res.text)["intent"]
 		return res
+
+	def ask(self, text):
+		res = self.ask_json(text)
+		data = json.loads(res.text)
+		intent = data["intent"]["displayName"]
+		response_text = data["fulfillmentText"]
+
 
 if __name__ == "__main__":
 	agent = Agent()
