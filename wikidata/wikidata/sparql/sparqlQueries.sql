@@ -59,3 +59,16 @@ WHERE
   FILTER((?date >= "2018-01-01T00:00:00Z"^^xsd:dateTime) && (?date <= "2019-12-31T00:00:00Z"^^xsd:dateTime))
   SERVICE wikibase:label { bd:serviceParam wikibase:language "en,fr" . }
 }
+
+
+-- What is the release date of the movie Avatar?
+SELECT ?item ?itemLabel ?year
+WHERE
+{
+  ?item wdt:P31/wdt:P279* wd:Q11424 .
+  ?item wdt:P1476 ?title .
+  ?item wdt:P577 ?year .
+#   FILTER contains(?title,"%s")
+  FILTER contains(?title,"Avatar")
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+}
