@@ -7,6 +7,14 @@
     }
 }
 
+#all {
+    margin-top: 2%;
+}
+
+#instruction {
+    padding: auto;
+    margin-top: 0px;
+}
 /* sections */
 .interactive {
     padding: 2em;
@@ -194,7 +202,7 @@ section {
     height: 3rem;
 }
 
-#msg {
+.alert {
     display:inline-block;
     word-wrap:break-word;
 }
