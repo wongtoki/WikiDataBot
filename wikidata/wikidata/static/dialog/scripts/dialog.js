@@ -10,6 +10,9 @@ var db_error = "<div class='alert alert-danger alert-dismissible'><strong>Our ba
 var empty_form = "<div class='alert alert-warning alert-dismissible'><strong>Oops!</strong>" +
             " Please fill in all the form fields. <button type='button' class='close' data-dismiss='alert'>&times;</button></div>";
 
+var no_results = "<div class='alert alert-info alert-dismissible'><strong>Oops!</strong>" +
+                        " There are no results to show. <button type='button' class='close' data-dismiss='alert'>&times;</button></div>";
+
 
 // Loading and unloading spinner
 function loading(dialog_id, input_field, submit_btn) {
@@ -25,7 +28,6 @@ function done(dialog_id, input_field, submit_btn) {
 
 
 $( document ).on('click', '#submit_movie_select', function(event){
-    event.preventDefault();
     // use HTML5 form-validation check
     if($('#movie_select')[0].checkValidity()) {
         event.preventDefault();
@@ -51,9 +53,9 @@ $( document ).on('click', '#submit_movie_select', function(event){
 
 // Catch and prevent normal event
 $('#submit_qa_query').click(function(event){
-    event.preventDefault();
     // use HTML5 form-validation check
     if($('#qa_query')[0].checkValidity()) {
+        event.preventDefault();
         // show spinner loading icon
         loading('#qa_dialog', '#post-search-query', '#submit_qa_query');
         // console.log('prevented');
@@ -62,6 +64,7 @@ $('#submit_qa_query').click(function(event){
         var method_id = $('#qa_query').prop('method');
         var data_items = {
             post_search: $('#post-search-query').val(),
+            post_selected_movie: $('.msg_select:last').attr('value'),
         };
         form_response(url_id, method_id, data_items);
     }
