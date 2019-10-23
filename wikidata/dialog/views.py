@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpRequest, JsonResponse
 from django.template.loader import render_to_string
+from django.views.decorators.csrf import csrf_exempt
 
 import requests
 import json
@@ -70,6 +71,7 @@ def index(request):
     }
     return render(request, 'index.html', context)
 
+@csrf_exempt
 def wikidata_dialog(request):
     '''catches AJAX POST and returns response'''
     if request.is_ajax():
