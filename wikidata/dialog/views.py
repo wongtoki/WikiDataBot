@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpRequest, JsonResponse
 from django.template.loader import render_to_string
+from django.views.decorators.csrf import csrf_exempt
 
 import requests
 import json
@@ -70,6 +71,7 @@ def index(request):
     }
     return render(request, 'index.html', context)
 
+@csrf_exempt
 def wikidata_dialog(request):
     '''catches AJAX POST and returns response'''
     if request.is_ajax():
@@ -83,8 +85,6 @@ def wikidata_dialog(request):
                 # TODO: initalise new form hereeeee !!
                 form = dialogForm(data={'search': 'test'})
 
-            print('komen we hier??')
-
             if form.is_valid() and 'post_search' in request.POST:
 
                 search = request.POST.get('post_search')
@@ -97,19 +97,17 @@ def wikidata_dialog(request):
 
                 # response = agent.ask_response_text(search, sessionId=random_string)
                 json_resp = agent.ask_json(search, sessionId=random_string)
-                # print(json_resp.text)
+                print(json_resp)
                 # intent = agent.ask_intent(search, sessionId=random_string)
                 # print(intent)
                 info = json_resp.json()['parameters']['fields']
                 # movie = info['movie_name']['stringValue']
                 # property = info['object_properties']['stringValue']
 
-
-                movie = 'Avatar'
-                property = 'get_director'
                 ## if there is no movie
                 ## return the fulfillmentText
-                print(movie, property)
+                # print(movie, property)
+                movie = 'Avatar'
 
                 query = '''
                     SELECT ?item ?itemLabel ?genreLabel ?year
@@ -175,3 +173,6 @@ def wikidata_dialog(request):
                 print('form is not valid')
                 print(form.errors)
                 print(form.non_field_errors)
+
+    else:
+        print('WAT DU FUCK')
