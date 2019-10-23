@@ -76,13 +76,14 @@ def wikidata_dialog(request):
     '''catches AJAX POST and returns response'''
     if request.is_ajax():
         if request.method == 'POST':
-            print(request.POST)
+
+            if 'post_selected_movie' in request.POST:
+                print('the q-number', request.POST['post_selected_movie'])
 
             if 'post_search' in request.POST:
                 # initialise form for validation with POST data
                 form = dialogForm(data={'search': request.POST['post_search']})
             else:
-                # TODO: initalise new form hereeeee !!
                 form = dialogForm(data={'search': 'test'})
 
             if form.is_valid() and 'post_search' in request.POST:
@@ -154,7 +155,7 @@ def wikidata_dialog(request):
                 response = 'Which of the following movies?'
 
                 ## return to user-interface
-                dialog = render_to_string('wikidata_dialog.html', {'question': search, 'response': response, 'disambiguation': options})
+                dialog = render_to_string('wikidata_1selections.html', {'question': search, 'response': response, 'disambiguation': options})
                 res = {'response': dialog}
                 return HttpResponse(json.dumps(res), 'application/json')
 
@@ -165,7 +166,7 @@ def wikidata_dialog(request):
                 response = 'Responding with the answer'
 
                 ## return to user-interface
-                dialog = render_to_string('wikidata_dialog.html', {'question': entity_title, 'response': response, 'disambiguation': ''})
+                dialog = render_to_string('wikidata_2selected.html', {'question': entity_title, 'response': response, 'q_number': entity})
                 res = {'response': dialog}
                 return HttpResponse(json.dumps(res), 'application/json')
 
@@ -173,6 +174,3 @@ def wikidata_dialog(request):
                 print('form is not valid')
                 print(form.errors)
                 print(form.non_field_errors)
-
-    else:
-        print('WAT DU FUCK')
