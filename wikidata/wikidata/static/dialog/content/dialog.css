@@ -1,0 +1,208 @@
+/* CSS ARTICLES PAGES */
+
+/* media screens */
+@media screen and (max-width: 768px) {
+    #sticker {
+        display: none !important;
+    }
+}
+
+/* sections */
+.interactive {
+    padding: 2em;
+    border-radius: .3rem;
+    background-color: #e9ecef;
+}
+
+.meta {
+    font-size: 0.8rem;
+    font-family: 'Raleway', sans-serif;
+    font-weight: 300;
+}
+
+.tags {
+    color: #cfcfcf;
+}
+
+/* clap button */
+#clap_count {
+    font-family: 'Raleway', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 300;
+    margin-left: 2.1rem;
+    margin-right: 2.1rem;
+
+}
+#clap_btn {
+    border-radius: 50%;
+    font-size: 2.5rem;
+    border: 1rem;
+    text-align: center;
+    padding-top: .4rem;
+    padding-bottom: .4rem;
+    padding-left: 1.2rem;
+    padding-right: 1.2rem;
+}
+
+/* CSS HOMEPAGE */
+
+/* typography */
+h5 {
+    font-family: 'Roboto', sans-serif !important;
+    font-size: 24px !important;
+    font-weight: 300 !important;
+}
+
+
+#article {
+    /*cursor: pointer;*/
+    max-width: 540px;
+}
+
+#info {
+    border-radius: .3rem;
+    padding: 1rem;
+}
+
+#info h5 {
+    margin-bottom: 0rem;
+}
+
+#info .card-title p {
+    font-size: 1rem;
+}
+
+.fa-ul {
+    margin-left: 1rem;
+    padding-left: .5rem;
+}
+
+#info p {
+    margin-bottom: 0rem;
+    font-size: .9rem;
+}
+#info .card-title {
+    padding-top: 1rem;
+}
+
+.fa-ul {
+    font-size: .9rem;
+}
+
+/* CSS MAIN ALL PAGES */
+
+/* typography */
+.navbar-brand {
+    font-family: 'Roboto', sans-serif !important;
+}
+
+h1 {
+    font-family: 'Roboto', sans-serif;
+    font-size: 40px;
+    font-weight:300;
+    padding-top: 1rem;
+    margin-bottom: 0rem;
+}
+
+p {
+    font-family: 'Raleway', sans-serif;
+    font-size: 1rem;
+    font-weight: 300;
+}
+
+b {
+    font-family: 'Raleway', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+lead {
+    margin-bottom: 20px;
+    display: inline-block;
+}
+
+code  {
+    font-size: .8rem !important;
+    border-radius: .3rem;
+    padding: .2rem;
+    background-color: #d6d6d6;
+}
+
+/* layout */
+section {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+/* alerts */
+.alert {
+    margin-top: 1rem;
+    max-height: 50px;
+}
+
+/* sticky */
+#menuheadlines {
+    padding-top: 2rem;
+}
+/* The sticky class is added to the header with JS when it reaches its scroll position */
+.sticky {
+  position: fixed;
+  top: 0;
+  width: 100%
+}
+/* Add some top padding to the page content to prevent sudden quick movement (as the header gets a new position at the top of the page (position:fixed and top:0) */
+.sticky + .content {
+  padding-top: 1rem;
+}
+
+/* links */
+#links {
+    font-size: .9rem;
+    list-style: katakana;
+}
+
+#links a {
+    color: black;
+    font-family: 'Raleway', sans-serif;
+    font-size: .9rem;
+    font-weight: 400;
+}
+
+
+#qa_response {
+    height: 50px;
+}
+
+#qa_dialog {
+    height: 25rem;
+    overflow-y: scroll;
+    background-color: #C0C0C0;
+
+}
+
+#qa_query {
+    margin-top: 2%;
+}
+
+.spinner-border {
+    position: absolute;
+    top: 52.5%;
+    left: 47.5%;
+    text-align: center;
+    z-index: 10;
+    width: 3rem;
+    height: 3rem;
+}
+
+#msg {
+    display:inline-block;
+    word-wrap:break-word;
+}
+
+.text-right {
+    margin-top: 2.5em;
+}
+
+.col-auto {
+    margin-top: 60px;
+}
