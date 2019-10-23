@@ -4,6 +4,13 @@
 var work_in_progress = "<div class='alert alert-warning alert-dismissible'><strong>Oops!</strong>" +
             " This is still a work in progress. <button type='button' class='close' data-dismiss='alert'>&times;</button></div>";
 
+var db_error = "<div class='alert alert-danger alert-dismissible'><strong>Our bad!</strong>" +
+            " We have encountered an error. <button type='button' class='close' data-dismiss='alert'>&times;</button></div>";
+
+var empty_form = "<div class='alert alert-warning alert-dismissible'><strong>Oops!</strong>" +
+            " Please fill in all the form fields. <button type='button' class='close' data-dismiss='alert'>&times;</button></div>";
+
+
 // Loading and unloading spinner
 function loading(dialog_id, input_field, submit_btn) {
     $(dialog_id).find(".spinner-border").show();
@@ -17,32 +24,30 @@ function done(dialog_id, input_field, submit_btn) {
 }
 
 
-$( document ).ajaxComplete(function() {
-    // Catch and prevent movie selection submit
-    $('#submit_movie_select').click(function(event){
+$( document ).on('click', '#submit_movie_select', function(event){
+    event.preventDefault();
+    // use HTML5 form-validation check
+    if($('#movie_select')[0].checkValidity()) {
         event.preventDefault();
-        // use HTML5 form-validation check
-        if($('#movie_select')[0].checkValidity()) {
-            // show spinner loading icon
-            loading('#qa_dialog', '#selected_movie', '#submit_movie_select');
-            // console.log('prevented');
-            $('#qa_response').html('');
-            // Ajax call;
-            var url_id = $('#movie_select').prop('action');
-            var method_id = $('#movie_select').prop('method');
-            var data_items = {
-                post_entity: $('#post_selected_movie').val(),
-                post_entity_title: $('#post_selected_movie option:selected').text(),
-            };
-            form_response(url_id, method_id, data_items);
+        // show spinner loading icon
+        loading('#qa_dialog', '#selected_movie', '#submit_movie_select');
+        // console.log('prevented');
+        $('#qa_response').html('');
+        // Ajax call;
+        var url_id = $('#movie_select').prop('action');
+        var method_id = $('#movie_select').prop('method');
+        var data_items = {
+            post_entity: $('#post_selected_movie').val(),
+            post_entity_title: $('#post_selected_movie option:selected').text(),
+        };
+        form_response(url_id, method_id, data_items);
 
-        }
-        else {
-            $('#qa_response').html(empty_form);
-        }
-    });
-});
+    }
+    else {
+        $('#qa_response').html(empty_form);
+    }
 
+} );
 
 // Catch and prevent normal event
 $('#submit_qa_query').click(function(event){
@@ -58,7 +63,6 @@ $('#submit_qa_query').click(function(event){
         var data_items = {
             post_search: $('#post-search-query').val(),
         };
-        
         form_response(url_id, method_id, data_items);
     }
     else {
