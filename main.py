@@ -1,7 +1,7 @@
 from agent import Agent
 import requests
 import json
-from wikidata.wikidata.sparql.sparql import Courior
+from wikidata.wikidata.sparql.sparql import Courier
 
 agent = Agent('SDHSJALSN','en')
 
@@ -19,7 +19,7 @@ def main():
 	#Get a response from the dialogflow agent
 	# res = agent.ask_response_text("Hello")
 	# print(res)
-	courior = Courior()
+	courior = Courier()
 	console(courior)
 
 	
