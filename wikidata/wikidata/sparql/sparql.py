@@ -162,7 +162,7 @@ class Courier:
 
 
 if __name__ == "__main__":
-    courior = Courior()
+    courior = Courier()
 
 
     delivery = courior.deliver()
