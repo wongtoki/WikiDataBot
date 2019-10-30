@@ -61,3 +61,4 @@ typings/
 .next
 wikidata/venv
 __pycache__
+.DS_Store
