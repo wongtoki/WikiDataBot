@@ -5,7 +5,6 @@ import urllib.parse as encodeurl
 
 
 class Courier:
-
     # This class is used as a universal parameter class
     class Parameters:
         moviename = ""
@@ -23,28 +22,27 @@ class Courier:
 
     def deliver(self, response):
 
+        moviename = response["parameters"]["fields"]["movie_name"]["stringValue"]
+        date = response["parameters"]["fields"]["date-period"]["endDate"]
+
         intent_name = response["intent"]["displayName"]
         default_response = response["fulfillmentText"]
-
-        moviename = response["parameters"]["fields"]["movie_name"]["stringValue"]
-
+        print(intent_name)
         # Creating the universal parameter object.
         parameters = Courier.Parameters()
         parameters.moviename = moviename
-        parameters.date = datetime.today()
+        parameters.date = date
 
         # Assign function names to viariables so they won't be called during assignment
         ask_oscar_winner_movie = self.__query_oscar_movies
-        ask_academy_award_winner_male = self.__query_academy_award_winner_male
-        ask_academy_award_winner_female = self.__query_academy_award_winner_female
+        ask_oscar_winner_actor = self.__query_oscar_winner_actor
         ask_release_date = self.__query_movie_release_date
         ask_oscar_winner_director = self.__query_oscar_winner_director
 
         # Using a dictionary for easy intent response
         packages = {
             "ask_oscar_winner": ask_oscar_winner_movie,
-            "ask_oscar_winner_male": ask_academy_award_winner_male,
-            "ask_oscar_winner_female": ask_academy_award_winner_female,
+            "ask_oscar_winner_actor": ask_oscar_winner_actor,
             "ask_release_date": ask_release_date,
             "ask_oscar_winner_director": ask_oscar_winner_director
         }
@@ -59,8 +57,10 @@ class Courier:
 
         return res
 
+    # Return the movie that won the Oscar in a given year
+    # Will return a single string.
     def __query_oscar_movies(self, params):
-        year = str(params.date.year)
+        year = params #str(params.date.year)
         query = """
             SELECT ?movie ?movieLabel ?date 
             WHERE
@@ -74,11 +74,16 @@ class Courier:
             }
         """ % (year, year)
         res = self.__send_query(query)
-        return res['bindings'][0]['movieLabel']['value']
+        return [res['bindings'][0]['movieLabel']['value']]
 
-    def __query_academy_award_winner_male(self, params):
+    # Return the Oscar winners for a given year
+    # Will return an array containing both male and female
+    # eg ['Rami Malek', 'Olivia Colman']
+    def __query_oscar_winner_actor(self, params):
         year = str(params.date.year)
-        query = """
+        # year = params
+
+        query_male_actor = """
             SELECT ?actor ?actorLabel ?date ?forWork ?forWorkLabel
             WHERE
             {
@@ -91,12 +96,8 @@ class Courier:
             SERVICE wikibase:label { bd:serviceParam wikibase:language "en,fr" . }
             }
         """ % (year, year)
-        res = self.__send_query(query)
-        return res['bindings'][0]['actorLabel']['value']
 
-    def __query_academy_award_winner_female(self, params):
-        year = str(params.date.year)
-        query = """
+        query_female_actor = """
             SELECT ?actor ?actorLabel ?date ?forWork ?forWorkLabel
             WHERE
             {
@@ -110,8 +111,14 @@ class Courier:
             SERVICE wikibase:label { bd:serviceParam wikibase:language "en,fr" . }
             }
         """ % (year, year)
-        res = self.__send_query(query)
-        return res['bindings'][0]['actorLabel']['value']
+
+        res1 = self.__send_query(query_male_actor)
+        res2 = self.__send_query(query_female_actor)
+        # return res['bindings'][0]['actorLabel']['value']
+
+        return [
+            res1['bindings'][0]['actorLabel']['value'],
+            res2['bindings'][0]['actorLabel']['value']]
 
     def __query_movie_release_date(self, params):
         query = """
@@ -127,7 +134,7 @@ class Courier:
         """ % (params.moviename.lower())
 
         res = self.__send_query(query)
-        
+
         results = []
         for v in res["bindings"]:
             output = {
@@ -166,6 +173,6 @@ class Courier:
 if __name__ == "__main__":
     courior = Courier()
 
-
     delivery = courior.deliver()
     print(delivery)
+    # print(courior.query_oscar_winner_actor(2019))
