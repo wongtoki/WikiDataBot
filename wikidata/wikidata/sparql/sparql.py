@@ -21,15 +21,17 @@ class Courier:
         value = res['results']
         return value
 
-    def deliver(self, response, moviename="", date=datetime.today()):
+    def deliver(self, response):
 
         intent_name = response["intent"]["displayName"]
         default_response = response["fulfillmentText"]
-        print(intent_name)
+
+        moviename = response["parameters"]["fields"]["movie_name"]["stringValue"]
+
         # Creating the universal parameter object.
         parameters = Courier.Parameters()
         parameters.moviename = moviename
-        parameters.date = date
+        parameters.date = datetime.today()
 
         # Assign function names to viariables so they won't be called during assignment
         ask_oscar_winner_movie = self.__query_oscar_movies
