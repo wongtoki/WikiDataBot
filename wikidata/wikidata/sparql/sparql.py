@@ -23,9 +23,6 @@ class Courior:
 
     def deliver(self, response, moviename="", date=datetime.today()):
 
-        
-
-
         intent_name = response["intent"]["displayName"]
         default_response = response["fulfillmentText"]
 
@@ -128,13 +125,13 @@ class Courior:
         """ % (params.moviename.lower())
 
         res = self.__send_query(query)
-        print(res)
         results = []
         for v in res["bindings"]:
             output = {
                 "moviename": v["itemLabel"]["value"],
                 "year": v["year"]["value"]
             }
+
             results.append(output)
 
         return results
