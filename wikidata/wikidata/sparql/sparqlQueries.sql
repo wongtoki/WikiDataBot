@@ -72,3 +72,51 @@ WHERE
   FILTER contains(?title,"Avatar")
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
 }
+
+# -- Who directed the given movie?
+SELECT ?item ?itemLabel ?directorLabel
+WHERE
+{
+  ?item wdt:P31/wdt:P279* wd:Q11424 .
+  ?item wdt:P1476 ?title .
+  ?item wdt:P57 ?director .
+#   FILTER contains(?title,"%s")
+  FILTER contains(?title,"Narnia")
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+}
+
+# -- What is the genre of the given movie?
+SELECT ?item ?itemLabel ?genreLabel
+WHERE
+{
+  ?item wdt:P31/wdt:P279* wd:Q11424 .
+  ?item wdt:P1476 ?title .
+  ?item wdt:P136 ?genre .
+#   FILTER contains(?title,"%s")
+  FILTER contains(?title,"Kill Bill")
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+}
+
+# -- What is the duration of the given movie?
+SELECT ?item ?itemLabel ?duration
+WHERE
+{
+  ?item wdt:P31/wdt:P279* wd:Q11424 .
+  ?item wdt:P1476 ?title .
+  ?item wdt:P2047 ?duration .
+#   FILTER contains(?title,"%s")
+  FILTER contains(?title,"Narnia")
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+}
+
+# -- Who is in the cast of the given movie?
+SELECT ?item ?itemLabel ?castLabel
+WHERE
+{
+  ?item wdt:P31/wdt:P279* wd:Q11424 .
+  ?item wdt:P1476 ?title .
+  ?item wdt:P161 ?cast .
+#   FILTER contains(?title,"%s")
+  FILTER contains(?title,"Kill Bill")
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+}

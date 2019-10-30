@@ -4,7 +4,7 @@ import json
 import urllib.parse as encodeurl
 
 
-class Courior:
+class Courier:
 
     # This class is used as a universal parameter class
     class Parameters:
@@ -21,15 +21,17 @@ class Courior:
         value = res['results']
         return value
 
-    def deliver(self, response, moviename="", date=datetime.today()):
+    def deliver(self, response):
 
         intent_name = response["intent"]["displayName"]
         default_response = response["fulfillmentText"]
 
+        moviename = response["parameters"]["fields"]["movie_name"]["stringValue"]
+
         # Creating the universal parameter object.
-        parameters = Courior.Parameters()
+        parameters = Courier.Parameters()
         parameters.moviename = moviename
-        parameters.date = date
+        parameters.date = datetime.today()
 
         # Assign function names to viariables so they won't be called during assignment
         ask_oscar_winner_movie = self.__query_oscar_movies
@@ -125,13 +127,13 @@ class Courior:
         """ % (params.moviename.lower())
 
         res = self.__send_query(query)
+        
         results = []
         for v in res["bindings"]:
             output = {
                 "moviename": v["itemLabel"]["value"],
                 "year": v["year"]["value"]
             }
-
             results.append(output)
 
         return results
@@ -162,7 +164,7 @@ class Courior:
 
 
 if __name__ == "__main__":
-    courior = Courior()
+    courior = Courier()
 
 
     delivery = courior.deliver()
