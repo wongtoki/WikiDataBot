@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpRequest, JsonResponse
 from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
-from wikidata.sparql.sparql import Courior
+from wikidata.sparql.sparql import Courier
 
 import requests
 import json
@@ -78,9 +78,9 @@ def wikidata_dialog(request):
     if request.is_ajax():
         if request.method == 'POST':
 
-            if 'post_selected_movie' in request.POST:
-                print('the q-number', request.POST['post_selected_movie'])
-
+            # if 'post_selected_movie' in request.POST:
+            #     print('the q-number', request.POST['post_selected_movie'])
+            #
             if 'post_search' in request.POST:
                 # initialise form for validation with POST data
                 form = dialogForm(data={'search': request.POST['post_search']})
@@ -101,7 +101,7 @@ def wikidata_dialog(request):
                 json_resp = agent.ask_json(search, sessionId=random_string)
                 print(json_resp)
 
-                courier = Courior()
+                courier = Courier()
                 parsed = json.loads(json_resp.text)
                 delivery = courier.deliver(parsed)
 
@@ -160,12 +160,16 @@ def wikidata_dialog(request):
             #     else:
             #         options = ''
             #
-            #     response = 'Which of the following movies?'
+                response = 'Which of the following movies?'
             #
             #     ## return to user-interface
-            #     dialog = render_to_string('wikidata_1selections.html', {'question': search, 'response': response, 'disambiguation': options})
-            #     res = {'response': dialog}
-            #     return HttpResponse(json.dumps(res), 'application/json')
+                dialog = render_to_string('wikidata_1selections.html', {
+                    'question': search,
+                    'response': response,
+                    'disambiguation': delivery
+                })
+                res = {'response': dialog}
+                return HttpResponse(json.dumps(res), 'application/json')
             #
             # elif form.is_valid() and 'post_entity' in request.POST:
             #

@@ -3,7 +3,6 @@ from datetime import datetime
 import json
 import urllib.parse as encodeurl
 
-
 class Courier:
     # This class is used as a universal parameter class
     class Parameters:
@@ -22,8 +21,14 @@ class Courier:
 
     def deliver(self, response):
 
-        moviename = response["parameters"]["fields"]["movie_name"]["stringValue"]
-        date = response["parameters"]["fields"]["date-period"]["endDate"]
+        try:
+            moviename = response["parameters"]["fields"]["movie_name"]["stringValue"]
+            date = response["parameters"]["fields"]["date-period"]["endDate"]
+        except KeyError:
+            print("sorry doesnt work")
+            moviename = ""
+            date = datetime.today()
+
 
         intent_name = response["intent"]["displayName"]
         default_response = response["fulfillmentText"]
