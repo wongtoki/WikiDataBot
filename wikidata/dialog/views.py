@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpRequest, JsonResponse
 from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
+from wikidata.sparql.sparql import Courior
 
 import requests
 import json
@@ -99,78 +100,85 @@ def wikidata_dialog(request):
                 # response = agent.ask_response_text(search, sessionId=random_string)
                 json_resp = agent.ask_json(search, sessionId=random_string)
                 print(json_resp)
-                # intent = agent.ask_intent(search, sessionId=random_string)
-                # print(intent)
-                info = json_resp.json()['parameters']['fields']
-                # movie = info['movie_name']['stringValue']
-                # property = info['object_properties']['stringValue']
 
-                ## if there is no movie
-                ## return the fulfillmentText
-                # print(movie, property)
-                movie = 'Avatar'
+                courier = Courior()
+                parsed = json.loads(json_resp.text)
+                delivery = courier.deliver(parsed)
 
-                query = '''
-                    SELECT ?item ?itemLabel ?genreLabel ?year
-                    WHERE
-                    {
-                      ?item wdt:P31/wdt:P279* wd:Q2431196 .
-                      ?item wdt:P1476 ?title .
-                      ?item wdt:P577 ?year .
-                      ?item wdt:P136 ?genre .
-                      FILTER contains(?title,"%s")
-                      SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
-                    }
-                ''' % (movie)
+                print(delivery)
 
-                # create the request
-                data = requests.get('https://query.wikidata.org/sparql',
-                                    params={'query': query, 'format': 'json'}).json()
-
-                info = {}
-
-                if data['results']:
-                    for item in data['results']['bindings']:
-                        identifier = item['item']['value'].split('/')[-1]
-                        title = item['itemLabel']['value']
-                        date = item['year']['value']
-                        # convert JSON timestamp to Python date object
-                        date = datetime.datetime.strptime(date, '%Y-%m-%dT%H:%M:%S%fZ')
-
-                        # fill dictionary
-                        info[identifier] = {'title': title, 'year': date.year, 'genre': []}
-
-                    # append genre to list
-                    for item in data['results']['bindings']:
-                        identifier = item['item']['value'].split('/')[-1]
-                        genre = item['genreLabel']['value']
-                        info[identifier]['genre'].append(genre)
-
-                # check if there are multiple results
-                if len(info.keys()) > 1:
-                    options = info
-                else:
-                    options = ''
-
-                response = 'Which of the following movies?'
-
-                ## return to user-interface
-                dialog = render_to_string('wikidata_1selections.html', {'question': search, 'response': response, 'disambiguation': options})
-                res = {'response': dialog}
-                return HttpResponse(json.dumps(res), 'application/json')
-
-            elif form.is_valid() and 'post_entity' in request.POST:
-
-                entity = request.POST.get('post_entity')
-                entity_title = request.POST.get('post_entity_title')
-                response = 'Responding with the answer'
-
-                ## return to user-interface
-                dialog = render_to_string('wikidata_2selected.html', {'question': entity_title, 'response': response, 'q_number': entity})
-                res = {'response': dialog}
-                return HttpResponse(json.dumps(res), 'application/json')
-
-            else:
-                print('form is not valid')
-                print(form.errors)
-                print(form.non_field_errors)
+            #     # intent = agent.ask_intent(search, sessionId=random_string)
+            #     # print(intent)
+            #     info = json_resp.json()['parameters']['fields']
+            #     # movie = info['movie_name']['stringValue']
+            #     # property = info['object_properties']['stringValue']
+            #
+            #     ## if there is no movie
+            #     ## return the fulfillmentText
+            #     # print(movie, property)
+            #     movie = 'Avatar'
+            #
+            #     query = '''
+            #         SELECT ?item ?itemLabel ?genreLabel ?year
+            #         WHERE
+            #         {
+            #           ?item wdt:P31/wdt:P279* wd:Q2431196 .
+            #           ?item wdt:P1476 ?title .
+            #           ?item wdt:P577 ?year .
+            #           ?item wdt:P136 ?genre .
+            #           FILTER contains(?title,"%s")
+            #           SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+            #         }
+            #     ''' % (movie)
+            #
+            #     # create the request
+            #     data = requests.get('https://query.wikidata.org/sparql',
+            #                         params={'query': query, 'format': 'json'}).json()
+            #
+            #     info = {}
+            #
+            #     if data['results']:
+            #         for item in data['results']['bindings']:
+            #             identifier = item['item']['value'].split('/')[-1]
+            #             title = item['itemLabel']['value']
+            #             date = item['year']['value']
+            #             # convert JSON timestamp to Python date object
+            #             date = datetime.datetime.strptime(date, '%Y-%m-%dT%H:%M:%S%fZ')
+            #
+            #             # fill dictionary
+            #             info[identifier] = {'title': title, 'year': date.year, 'genre': []}
+            #
+            #         # append genre to list
+            #         for item in data['results']['bindings']:
+            #             identifier = item['item']['value'].split('/')[-1]
+            #             genre = item['genreLabel']['value']
+            #             info[identifier]['genre'].append(genre)
+            #
+            #     # check if there are multiple results
+            #     if len(info.keys()) > 1:
+            #         options = info
+            #     else:
+            #         options = ''
+            #
+            #     response = 'Which of the following movies?'
+            #
+            #     ## return to user-interface
+            #     dialog = render_to_string('wikidata_1selections.html', {'question': search, 'response': response, 'disambiguation': options})
+            #     res = {'response': dialog}
+            #     return HttpResponse(json.dumps(res), 'application/json')
+            #
+            # elif form.is_valid() and 'post_entity' in request.POST:
+            #
+            #     entity = request.POST.get('post_entity')
+            #     entity_title = request.POST.get('post_entity_title')
+            #     response = 'Responding with the answer'
+            #
+            #     ## return to user-interface
+            #     dialog = render_to_string('wikidata_2selected.html', {'question': entity_title, 'response': response, 'q_number': entity})
+            #     res = {'response': dialog}
+            #     return HttpResponse(json.dumps(res), 'application/json')
+            #
+            # else:
+            #     print('form is not valid')
+            #     print(form.errors)
+            #     print(form.non_field_errors)
