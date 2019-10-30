@@ -25,47 +25,54 @@ class Courier:
             moviename = response["parameters"]["fields"]["movie_name"]["stringValue"]
             date = response["parameters"]["fields"]["date-period"]["endDate"]
         except KeyError:
-            print("sorry doesnt work")
+            print("Could not find a movie name")
             moviename = ""
             date = datetime.today()
+            # return 'Could not find a movie'
 
-
+        # gets the intent name + default response from the DF response.
         intent_name = response["intent"]["displayName"]
         default_response = response["fulfillmentText"]
-        print(intent_name)
+
+        print("intent name: ", intent_name)
+
         # Creating the universal parameter object.
+        # This doesnt happen for every query though.
         parameters = Courier.Parameters()
         parameters.moviename = moviename
         parameters.date = date
 
         # Assign function names to viariables so they won't be called during assignment
         ask_oscar_winner_movie = self.__query_oscar_movies
-        ask_oscar_winner_actor = self.__query_oscar_winner_actor
+        ask_oscar_winner = self.__query_oscar_winner
         ask_release_date = self.__query_movie_release_date
         ask_oscar_winner_director = self.__query_oscar_winner_director
 
         # Using a dictionary for easy intent response
         packages = {
-            "ask_oscar_winner": ask_oscar_winner_movie,
-            "ask_oscar_winner_actor": ask_oscar_winner_actor,
+            "ask_oscar_winner": ask_oscar_winner,
+            "ask_oscar_winner_movie": ask_oscar_winner_movie,
             "ask_release_date": ask_release_date,
             "ask_oscar_winner_director": ask_oscar_winner_director
         }
 
         # Calling the function assigned to the dictionary key
         try:
-            res = packages[intent_name](parameters)
-            if res == None:
+            sparql_result = packages[intent_name](response)
+            print ("Got here once \n")
+            if (len(sparql_result) == 0):
                 return default_response
         except:
             return default_response
 
-        return res
+        return sparql_result
 
     # Return the movie that won the Oscar in a given year
     # Will return a single string.
-    def __query_oscar_movies(self, params):
-        year = params #str(params.date.year)
+    def __query_oscar_movies(self, response):
+        year_string = response["parameters"]["fields"]["date-period"]["structValue"]["fields"]["endDate"]["stringValue"]
+        year = year_string[:4]
+
         query = """
             SELECT ?movie ?movieLabel ?date 
             WHERE
@@ -78,15 +85,22 @@ class Courier:
             SERVICE wikibase:label { bd:serviceParam wikibase:language "en,fr" . }
             }
         """ % (year, year)
+
         res = self.__send_query(query)
-        return [res['bindings'][0]['movieLabel']['value']]
+        return [
+            True,
+            [
+                res['bindings'][0]['movieLabel']['value']
+            ]
+        ]
 
     # Return the Oscar winners for a given year
     # Will return an array containing both male and female
     # eg ['Rami Malek', 'Olivia Colman']
-    def __query_oscar_winner_actor(self, params):
-        year = str(params.date.year)
-        # year = params
+    def __query_oscar_winner(self, response):
+        year_string = response["parameters"]["fields"]["date-period"]["structValue"]["fields"]["endDate"]["stringValue"]
+        year = year_string[:4]
+        print("============YEAR ==========", year)
 
         query_male_actor = """
             SELECT ?actor ?actorLabel ?date ?forWork ?forWorkLabel
@@ -119,11 +133,14 @@ class Courier:
 
         res1 = self.__send_query(query_male_actor)
         res2 = self.__send_query(query_female_actor)
-        # return res['bindings'][0]['actorLabel']['value']
 
         return [
-            res1['bindings'][0]['actorLabel']['value'],
-            res2['bindings'][0]['actorLabel']['value']]
+            True,
+            [
+                res1['bindings'][0]['actorLabel']['value'],
+                res2['bindings'][0]['actorLabel']['value']
+            ]
+        ]
 
     def __query_movie_release_date(self, params):
         query = """

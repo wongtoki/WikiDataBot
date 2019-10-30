@@ -89,87 +89,7 @@ def wikidata_dialog(request):
 
             if form.is_valid() and 'post_search' in request.POST:
 
-                search = request.POST.get('post_search')
-
-                random_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
-                print('random_string', random_string)
-
-                ## Google Dialogflow
-                agent = Agent()
-
-                # response = agent.ask_response_text(search, sessionId=random_string)
-                json_resp = agent.ask_json(search, sessionId=random_string)
-                print(json_resp)
-
-                courier = Courier()
-                parsed = json.loads(json_resp.text)
-                delivery = courier.deliver(parsed)
-
-                print(delivery)
-
-            #     # intent = agent.ask_intent(search, sessionId=random_string)
-            #     # print(intent)
-            #     info = json_resp.json()['parameters']['fields']
-            #     # movie = info['movie_name']['stringValue']
-            #     # property = info['object_properties']['stringValue']
-            #
-            #     ## if there is no movie
-            #     ## return the fulfillmentText
-            #     # print(movie, property)
-            #     movie = 'Avatar'
-            #
-            #     query = '''
-            #         SELECT ?item ?itemLabel ?genreLabel ?year
-            #         WHERE
-            #         {
-            #           ?item wdt:P31/wdt:P279* wd:Q2431196 .
-            #           ?item wdt:P1476 ?title .
-            #           ?item wdt:P577 ?year .
-            #           ?item wdt:P136 ?genre .
-            #           FILTER contains(?title,"%s")
-            #           SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
-            #         }
-            #     ''' % (movie)
-            #
-            #     # create the request
-            #     data = requests.get('https://query.wikidata.org/sparql',
-            #                         params={'query': query, 'format': 'json'}).json()
-            #
-            #     info = {}
-            #
-            #     if data['results']:
-            #         for item in data['results']['bindings']:
-            #             identifier = item['item']['value'].split('/')[-1]
-            #             title = item['itemLabel']['value']
-            #             date = item['year']['value']
-            #             # convert JSON timestamp to Python date object
-            #             date = datetime.datetime.strptime(date, '%Y-%m-%dT%H:%M:%S%fZ')
-            #
-            #             # fill dictionary
-            #             info[identifier] = {'title': title, 'year': date.year, 'genre': []}
-            #
-            #         # append genre to list
-            #         for item in data['results']['bindings']:
-            #             identifier = item['item']['value'].split('/')[-1]
-            #             genre = item['genreLabel']['value']
-            #             info[identifier]['genre'].append(genre)
-            #
-            #     # check if there are multiple results
-            #     if len(info.keys()) > 1:
-            #         options = info
-            #     else:
-            #         options = ''
-            #
-                response = 'Which of the following movies?'
-            #
-            #     ## return to user-interface
-                dialog = render_to_string('wikidata_1selections.html', {
-                    'question': search,
-                    'response': response,
-                    'disambiguation': delivery
-                })
-                res = {'response': dialog}
-                return HttpResponse(json.dumps(res), 'application/json')
+                return search_for_movie(request)
             #
             # elif form.is_valid() and 'post_entity' in request.POST:
             #
@@ -182,7 +102,82 @@ def wikidata_dialog(request):
             #     res = {'response': dialog}
             #     return HttpResponse(json.dumps(res), 'application/json')
             #
-            # else:
-            #     print('form is not valid')
-            #     print(form.errors)
-            #     print(form.non_field_errors)
+            else:
+                # search_in_list(form)
+                print("TODO")
+                return
+
+def search_in_list(form):
+    print('form is not valid')
+    print(form.errors)
+    print(form.non_field_errors)
+
+
+def search_for_movie(request):
+    search_question = request.POST.get('post_search')
+
+    # store the question in the session
+    # request.session['question'] = search_question
+
+    print('This is the search question: ', search_question)
+
+    ## Google Dialogflow
+    dialog_flow_agent = Agent()
+    json_resp = dialog_flow_agent.ask_json(search_question, sessionId=create_random_string())
+    # return "nothing here"
+
+    parsed = json.loads(json_resp.text)
+    # print('parsed: ', parsed)
+    courier = Courier()
+    result = courier.deliver(parsed)
+    print('delivery: ', result[1])
+    #     # intent = agent.ask_intent(search, sessionId=random_string)
+    #     # print(intent)
+    #     info = json_resp.json()['parameters']['fields']
+    #     # movie = info['movie_name']['stringValue']
+    #     # property = info['object_properties']['stringValue']
+    #
+    #     if data['results']:
+    #         for item in data['results']['bindings']:
+    #             identifier = item['item']['value'].split('/')[-1]
+    #             title = item['itemLabel']['value']
+    #             date = item['year']['value']
+    #             # convert JSON timestamp to Python date object
+    #             date = datetime.datetime.strptime(date, '%Y-%m-%dT%H:%M:%S%fZ')
+    #
+    #             # fill dictionary
+    #             info[identifier] = {'title': title, 'year': date.year, 'genre': []}
+    #
+    #         # append genre to list
+    #         for item in data['results']['bindings']:
+    #             identifier = item['item']['value'].split('/')[-1]
+    #             genre = item['genreLabel']['value']
+    #             info[identifier]['genre'].append(genre)
+    #
+    #     # check if there are multiple results
+    #     if len(info.keys()) > 1:
+    #         options = info
+    #     else:
+    #         options = ''
+
+    # Displaying of the answer.
+    if (result[0]):
+        dialog = render_to_string('wikidata_2selected.html', {
+            'question': search_question,
+            'response': ', '.join(result[1]),
+            'disambiguation': result
+        })
+    else:
+        response = 'Which of the following movies?'
+        dialog = render_to_string('wikidata_1selections.html', {
+            'question': search_question,
+            'response': response,
+            'disambiguation': result,
+        })
+    res = {'response': dialog}
+    return HttpResponse(json.dumps(res), 'application/json')
+
+
+def create_random_string():
+    random_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+    return random_string

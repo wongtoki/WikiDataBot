@@ -64,7 +64,6 @@ $('#submit_qa_query').click(function(event){
         var method_id = $('#qa_query').prop('method');
         var data_items = {
             post_search: $('#post-search-query').val(),
-            post_selected_movie: $('.msg_select:last').attr('value'),
         };
         form_response(url_id, method_id, data_items);
     }
