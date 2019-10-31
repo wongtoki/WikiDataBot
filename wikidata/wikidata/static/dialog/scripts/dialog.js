@@ -26,7 +26,7 @@ function done(dialog_id, input_field, submit_btn) {
     $(submit_btn).prop('disabled', false);
 }
 
-
+// dropdown_select movie name options
 $( document ).on('click', '#submit_movie_select', function(event){
     // use HTML5 form-validation check
     if($('#movie_select')[0].checkValidity()) {
@@ -51,7 +51,7 @@ $( document ).on('click', '#submit_movie_select', function(event){
 
 } );
 
-// Catch and prevent normal event
+// normal dialog user input field where user can type
 $('#submit_qa_query').click(function(event){
     // use HTML5 form-validation check
     if($('#qa_query')[0].checkValidity()) {
