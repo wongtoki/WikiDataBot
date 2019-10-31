@@ -3,62 +3,26 @@ from django.http import HttpResponse, HttpRequest, JsonResponse
 from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
 from wikidata.sparql.sparql import Courier
+from wikidata.dialogflow.dialogflow import Agent
 
-import requests
 import json
 import random
 import string
-import datetime
 
 # import models
 
 # import forms
 from dialog.forms import dialogForm
 
-# requirements for Dialogflow agent
-KEY = 'kLhZweLdy1'
-HOST = 'https://robot.tokisbackyard.com'
-HEADERS = {
-    "Authorization": KEY,
-    "Content-Type": "application/json"
-}
 
-class Agent:
-    def __init__(self):
-        pass
-
-    # Api call
-    # query params: lang(languageCode) & id(sessionid)
-    # body {
-    # 	query (input from user)
-    #	context (a dialogflow feature, I'll explain later.)
-    # }
-
-    def ask_json(self, text, lang='en', sessionId='test', context=""):
-        host = f'{HOST}/ask?lang={lang}&id={sessionId}'
-
-        body = {
-            'query': text,
-            'context': context
-        }
-
-        res = requests.post(host, json=body, headers=HEADERS)
-        return res
-
-    def ask_response_text(self, text, lang='en', sessionId='test'):
-        res = self.ask_json(text, lang, sessionId)
-        res = json.loads(res.text)["fulfillmentMessages"]
-        return res[0]['text']['text'][0]
-
-    def ask_intent(self, text, lang='en', sessionId='test'):
-        res = self.ask_json(text, lang, sessionId)
-        res = json.loads(res.text)["intent"]
-        return res
-
-
+def create_random_string():
+    '''A function to return a random string used for the Agent'''
+    random_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+    return random_string
 
 # Create your views here.
 def index(request):
+    '''This is what is displayed on the normal page'''
     assert isinstance(request, HttpRequest)
 
     form = dialogForm(auto_id=False)
@@ -77,107 +41,80 @@ def wikidata_dialog(request):
     '''catches AJAX POST and returns response'''
     if request.is_ajax():
         if request.method == 'POST':
+            print('request information:', request.POST)
 
-            # if 'post_selected_movie' in request.POST:
-            #     print('the q-number', request.POST['post_selected_movie'])
-            #
             if 'post_search' in request.POST:
-                # initialise form for validation with POST data
-                form = dialogForm(data={'search': request.POST['post_search']})
-            else:
-                form = dialogForm(data={'search': 'test'})
+                '''A question has been asked'''
 
-            if form.is_valid() and 'post_search' in request.POST:
+                # the returned response in HTML in a dictionary
+                res = return_response(request)
 
-                return search_for_movie(request)
-            #
-            # elif form.is_valid() and 'post_entity' in request.POST:
-            #
-            #     entity = request.POST.get('post_entity')
-            #     entity_title = request.POST.get('post_entity_title')
-            #     response = 'Responding with the answer'
-            #
-            #     ## return to user-interface
-            #     dialog = render_to_string('wikidata_2selected.html', {'question': entity_title, 'response': response, 'q_number': entity})
-            #     res = {'response': dialog}
-            #     return HttpResponse(json.dumps(res), 'application/json')
-            #
-            else:
-                # search_in_list(form)
-                print("TODO")
-                return
+            elif 'post_entity_title' in request.POST:
+                '''The user made a dropdown selection'''
 
-def search_in_list(form):
-    print('form is not valid')
-    print(form.errors)
-    print(form.non_field_errors)
+                intent_value = request.POST['post_entity']
+                movie_title = request.POST['post_entity_title']
+
+                if intent_value:
+                    '''A movie was selected by the user'''
+
+                    # what HTML to return to user interface
+                    dialog = render_to_string('returns/normal_response.html',
+                                              {'question': movie_title, 'response': intent_value})
+                    res = {'response': dialog}
+
+                else:
+                    '''User selected the 'other' option in the dropdown-select'''
+
+                    bot_resp = 'Please specify which movie a bit better.'
+                    # what HTML to return to user interface
+                    dialog = render_to_string('returns/normal_response.html',
+                                              {'question': movie_title, 'response': bot_resp})
+                    res = {'response': dialog}
+
+            return HttpResponse(json.dumps(res), 'application/json')
 
 
-def search_for_movie(request):
-    search_question = request.POST.get('post_search')
+def return_response(form):
+    '''This takes the POST values form the request and returns either a dropdown or string response'''
 
-    # store the question in the session
-    # request.session['question'] = search_question
+    # Google Dialogflow class
+    agent = Agent()
+    # SPARQL query and response class
+    courier = Courier()
 
-    print('This is the search question: ', search_question)
-
-    ## Google Dialogflow
-    dialog_flow_agent = Agent()
-    json_resp = dialog_flow_agent.ask_json(search_question, sessionId=create_random_string())
-    # return "nothing here"
+    user_input = form.POST['post_search']
+    random_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+    json_resp = agent.ask_json(user_input, sessionId=random_string)
 
     parsed = json.loads(json_resp.text)
-    # print('parsed: ', parsed)
-    courier = Courier()
-    result = courier.deliver(parsed)
-    print('delivery: ', result[1])
-    #     # intent = agent.ask_intent(search, sessionId=random_string)
-    #     # print(intent)
-    #     info = json_resp.json()['parameters']['fields']
-    #     # movie = info['movie_name']['stringValue']
-    #     # property = info['object_properties']['stringValue']
-    #
-    #     if data['results']:
-    #         for item in data['results']['bindings']:
-    #             identifier = item['item']['value'].split('/')[-1]
-    #             title = item['itemLabel']['value']
-    #             date = item['year']['value']
-    #             # convert JSON timestamp to Python date object
-    #             date = datetime.datetime.strptime(date, '%Y-%m-%dT%H:%M:%S%fZ')
-    #
-    #             # fill dictionary
-    #             info[identifier] = {'title': title, 'year': date.year, 'genre': []}
-    #
-    #         # append genre to list
-    #         for item in data['results']['bindings']:
-    #             identifier = item['item']['value'].split('/')[-1]
-    #             genre = item['genreLabel']['value']
-    #             info[identifier]['genre'].append(genre)
-    #
-    #     # check if there are multiple results
-    #     if len(info.keys()) > 1:
-    #         options = info
-    #     else:
-    #         options = ''
+    boolean, bot_resp = courier.deliver(parsed)
 
-    # Displaying of the answer.
-    if (result[0]):
-        dialog = render_to_string('wikidata_2selected.html', {
-            'question': search_question,
-            'response': ', '.join(result[1]),
-            'disambiguation': result
-        })
+    '''for debugging!'''''
+    boolean = False
+    bot_resp = [['Avatar', '2008', 'James'], ['Avatar the series', '2001', 'director_name']]
+    print(boolean)
+    print(bot_resp)
+
+    if boolean:
+        '''The string response from DialogFlow should be returned'''
+
+        # bot_resp is always a list, with in this case the string in it
+        textual_response = bot_resp[0]
+
+        # what HTML to return to user interface
+        dialog = render_to_string('returns/normal_response.html', {'question': user_input, 'response': textual_response})
+
     else:
-        response = 'Which of the following movies?'
-        dialog = render_to_string('wikidata_1selections.html', {
-            'question': search_question,
-            'response': response,
-            'disambiguation': result,
-        })
-    res = {'response': dialog}
-    return HttpResponse(json.dumps(res), 'application/json')
+        '''A dropdown select with movie choices should be returned'''
+
+        response_question = 'Which of the following movies?'
+
+        # what HTML to return to user interface
+        dialog = render_to_string('returns/dropdown_select.html', {'question': user_input, 'response': response_question, 'selections': bot_resp})
+
+    response = {'response': dialog}
+
+    return response
 
 
-def create_random_string():
-    random_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
-    return random_string
