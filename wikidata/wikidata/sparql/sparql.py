@@ -3,6 +3,19 @@ from datetime import datetime
 import json
 import urllib.parse as encodeurl
 
+class Package:
+    
+    qnumber = ""
+    moviename = ""
+    oscar_winner = ""
+    release_date = ""
+    default_response = ""
+    movies = []
+
+    def __init__(self):
+        pass
+
+    
 
 class Courier:
     # This class is used as a universal parameter class
