@@ -60,10 +60,19 @@ class Courier:
 
         return sparql_result
 
-    # Return the movie that won the Oscar in a given year
-    def __query_oscar_movies(self, response):
+    # Wrapping the params
+    def __get_year(self, response):
         year_string = response["parameters"]["fields"]["date-period"]["structValue"]["fields"]["endDate"]["stringValue"]
         year = year_string[:4]
+        return year
+
+    def __get_movie_name(self, response):
+        movie_string = response["parameters"]["fields"]["movie_name"]["stringValue"]
+        return movie_string
+
+    # Return the movie that won the Oscar in a given year
+    def __query_oscar_movies(self, response):
+        year = self.__get_year(response)
 
         query = """
             SELECT ?movie ?movieLabel ?date 
@@ -90,8 +99,7 @@ class Courier:
     # Will return an array containing both male and female
     # eg ['Rami Malek', 'Olivia Colman']
     def __query_oscar_winner(self, response):
-        year_string = response["parameters"]["fields"]["date-period"]["structValue"]["fields"]["endDate"]["stringValue"]
-        year = year_string[:4]
+        year = self.__get_year(response)
 
         query_male_actor = """
             SELECT ?actor ?actorLabel ?date ?forWork ?forWorkLabel
@@ -136,7 +144,8 @@ class Courier:
             ]
         ]
 
-    def __query_movie_release_date(self, params):
+    def __query_movie_release_date(self, response):
+        movie = self.__get_movie_name(response)
         query = """
             SELECT ?item ?itemLabel ?year
             WHERE
@@ -147,22 +156,22 @@ class Courier:
             FILTER contains(lcase(str(?title)),"%s")
             SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
             }
-        """ % (params.moviename.lower())
+        """ % (movie.lower())
 
         res = self.__send_query(query)
 
-        results = []
+        results = [True,[]] # I am not sure about this line.
         for v in res["bindings"]:
             output = {
                 "moviename": v["itemLabel"]["value"],
                 "year": v["year"]["value"]
             }
-            results.append(output)
+            results[1].append(output)
 
         return results
 
-    def __query_oscar_winner_director(self, params):
-        year = str(params.date.year)
+    def __query_oscar_winner_director(self, response):
+        year = self.__get_year(response)
         query = """
             SELECT ?actor ?actorLabel ?date ?forWork ?forWorkLabel
             WHERE
@@ -174,13 +183,13 @@ class Courier:
             ?awardstatement ps:P166 wd:Q103360 .
             ?awardstatement pq:P585 ?date .
             ?awardstatement pq:P1686 ?forWork .
-            FILTER((?date >= "{%s}-01-01T00:00:00Z"^^xsd:dateTime) && (?date <= "%s-12-31T00:00:00Z"^^xsd:dateTime))
+            FILTER((?date >= "%s-01-01T00:00:00Z"^^xsd:dateTime) && (?date <= "%s-12-31T00:00:00Z"^^xsd:dateTime))
             SERVICE wikibase:label { bd:serviceParam wikibase:language "en,fr" . }
             }
         """ % (year, year)
         res = self.__send_query(query)
-        res = res["bindings"]
-        return res
+        res = res["bindings"][0]
+        return [True, [res["actorLabel"]["value"]]]
 
     def __query_genre(self, params):
         pass
