@@ -9,6 +9,7 @@ class Courier:
     def __init__(self):
         pass
 
+    # Communicates with the wikidata endpoint.
     def __send_query(self, query):
         endpoint_url = "https://query.wikidata.org/sparql"
 
@@ -29,16 +30,6 @@ class Courier:
             return
 
     def deliver(self, response):
-
-        try:
-            moviename = response["parameters"]["fields"]["movie_name"]["stringValue"]
-            date = response["parameters"]["fields"]["date-period"]["endDate"]
-        except KeyError:
-            print("Could not find a movie name")
-            moviename = ""
-            date = datetime.today()
-            # return 'Could not find a movie'
-
         # gets the intent name + default response from the DF response.
         intent_name = response["intent"]["displayName"]
         default_response = response["fulfillmentText"]
@@ -70,7 +61,6 @@ class Courier:
         return sparql_result
 
     # Return the movie that won the Oscar in a given year
-    # Will return a single string.
     def __query_oscar_movies(self, response):
         year_string = response["parameters"]["fields"]["date-period"]["structValue"]["fields"]["endDate"]["stringValue"]
         year = year_string[:4]
@@ -102,7 +92,6 @@ class Courier:
     def __query_oscar_winner(self, response):
         year_string = response["parameters"]["fields"]["date-period"]["structValue"]["fields"]["endDate"]["stringValue"]
         year = year_string[:4]
-        print("============YEAR ==========", year)
 
         query_male_actor = """
             SELECT ?actor ?actorLabel ?date ?forWork ?forWorkLabel
@@ -118,7 +107,6 @@ class Courier:
             }
         """ % (year, year)
 
-        print(query_male_actor)
         query_female_actor = """
             SELECT ?actor ?actorLabel ?date ?forWork ?forWorkLabel
             WHERE
@@ -134,9 +122,11 @@ class Courier:
             }
         """ % (year, year)
 
-        res1 = self.__send_query(query_male_actor)
-        print ('\n res1 is :', res1)
-        res2 = self.__send_query(query_female_actor)
+        try:
+            res1 = self.__send_query(query_male_actor)
+            res2 = self.__send_query(query_female_actor)
+        except:
+            return [True, ["The Wikidata endpoint isnt answering."]]
 
         return [
             True,
