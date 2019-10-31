@@ -2,69 +2,63 @@ import requests
 from datetime import datetime
 import json
 import urllib.parse as encodeurl
-from SPARQLWrapper import SPARQLWrapper, JSON
 
-class Courier:
+
+class Courior:
+
+    # This class is used as a universal parameter class
+    class Parameters:
+        moviename = ""
+        date = datetime.now
 
     def __init__(self):
         pass
 
-    # Communicates with the wikidata endpoint.
     def __send_query(self, query):
-        endpoint_url = "https://query.wikidata.org/sparql"
+        endpoint = "https://query.wikidata.org/sparql?format=json&query="
+        url = endpoint + encodeurl.quote(query)
+        res = requests.get(url).json()
+        value = res['results']
+        return value
 
-        try:
-            sparql = SPARQLWrapper(endpoint_url)
-            sparql.setQuery(query)
-            sparql.setReturnFormat(JSON)
-            results = sparql.query().convert()
-        except:
-            print ("The wikidata endpoint is not answering")
-            return
+    def deliver(self, response, moviename="", date=datetime.today()):
 
-        value = results['results']
-        if (value):
-            return value
-        else:
-            print("\n query didnt work")
-            return
-
-    def deliver(self, response):
-        # gets the intent name + default response from the DF response.
         intent_name = response["intent"]["displayName"]
         default_response = response["fulfillmentText"]
 
-        print("intent name: ", intent_name)
+        # Creating the universal parameter object.
+        parameters = Courior.Parameters()
+        parameters.moviename = moviename
+        parameters.date = date
 
         # Assign function names to viariables so they won't be called during assignment
         ask_oscar_winner_movie = self.__query_oscar_movies
-        ask_oscar_winner = self.__query_oscar_winner
+        ask_academy_award_winner_male = self.__query_academy_award_winner_male
+        ask_academy_award_winner_female = self.__query_academy_award_winner_female
         ask_release_date = self.__query_movie_release_date
         ask_oscar_winner_director = self.__query_oscar_winner_director
 
         # Using a dictionary for easy intent response
         packages = {
-            "ask_oscar_winner": ask_oscar_winner,
-            "ask_oscar_winner_movie": ask_oscar_winner_movie,
+            "ask_oscar_winner": ask_oscar_winner_movie,
+            "ask_oscar_winner_male": ask_academy_award_winner_male,
+            "ask_oscar_winner_female": ask_academy_award_winner_female,
             "ask_release_date": ask_release_date,
             "ask_oscar_winner_director": ask_oscar_winner_director
         }
 
         # Calling the function assigned to the dictionary key
         try:
-            sparql_result = packages[intent_name](response)
-            if (sparql_result[0] == False):
-                return [True, [default_response]]
+            res = packages[intent_name](parameters)
+            if res == None:
+                return default_response
         except:
-            return [True, [default_response]]
+            return default_response
 
-        return sparql_result
+        return res
 
-    # Return the movie that won the Oscar in a given year
-    def __query_oscar_movies(self, response):
-        year_string = response["parameters"]["fields"]["date-period"]["structValue"]["fields"]["endDate"]["stringValue"]
-        year = year_string[:4]
-
+    def __query_oscar_movies(self, params):
+        year = str(params.date.year)
         query = """
             SELECT ?movie ?movieLabel ?date 
             WHERE
@@ -77,23 +71,12 @@ class Courier:
             SERVICE wikibase:label { bd:serviceParam wikibase:language "en,fr" . }
             }
         """ % (year, year)
-
         res = self.__send_query(query)
-        return [
-            True,
-            [
-                res['bindings'][0]['movieLabel']['value']
-            ]
-        ]
+        return res['bindings'][0]['movieLabel']['value']
 
-    # Return the Oscar winners for a given year
-    # Will return an array containing both male and female
-    # eg ['Rami Malek', 'Olivia Colman']
-    def __query_oscar_winner(self, response):
-        year_string = response["parameters"]["fields"]["date-period"]["structValue"]["fields"]["endDate"]["stringValue"]
-        year = year_string[:4]
-
-        query_male_actor = """
+    def __query_academy_award_winner_male(self, params):
+        year = str(params.date.year)
+        query = """
             SELECT ?actor ?actorLabel ?date ?forWork ?forWorkLabel
             WHERE
             {
@@ -106,8 +89,12 @@ class Courier:
             SERVICE wikibase:label { bd:serviceParam wikibase:language "en,fr" . }
             }
         """ % (year, year)
+        res = self.__send_query(query)
+        return res['bindings'][0]['actorLabel']['value']
 
-        query_female_actor = """
+    def __query_academy_award_winner_female(self, params):
+        year = str(params.date.year)
+        query = """
             SELECT ?actor ?actorLabel ?date ?forWork ?forWorkLabel
             WHERE
             {
@@ -121,20 +108,8 @@ class Courier:
             SERVICE wikibase:label { bd:serviceParam wikibase:language "en,fr" . }
             }
         """ % (year, year)
-
-        try:
-            res1 = self.__send_query(query_male_actor)
-            res2 = self.__send_query(query_female_actor)
-        except:
-            return [True, ["The Wikidata endpoint isnt answering."]]
-
-        return [
-            True,
-            [
-                res1['bindings'][0]['actorLabel']['value'],
-                res2['bindings'][0]['actorLabel']['value']
-            ]
-        ]
+        res = self.__send_query(query)
+        return res['bindings'][0]['actorLabel']['value']
 
     def __query_movie_release_date(self, params):
         query = """
@@ -150,13 +125,13 @@ class Courier:
         """ % (params.moviename.lower())
 
         res = self.__send_query(query)
-
         results = []
         for v in res["bindings"]:
             output = {
                 "moviename": v["itemLabel"]["value"],
                 "year": v["year"]["value"]
             }
+
             results.append(output)
 
         return results
@@ -187,8 +162,8 @@ class Courier:
 
 
 if __name__ == "__main__":
-    courior = Courier()
+    courior = Courior()
+
 
     delivery = courior.deliver()
     print(delivery)
-    # print(courior.query_oscar_winner_actor(2019))

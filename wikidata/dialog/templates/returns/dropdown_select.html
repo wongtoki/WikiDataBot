@@ -2,17 +2,16 @@
 <div class="row">
     <div class="col text-left">
         <div class="row justify-content-start">
-            <div class='alert alert-light' id="msg">{{ question }}</div>
-            {% if disambiguation %}
+            <div class='alert alert-light'>{{ question }}</div>
             <form class="form" action="wikidata_dialog/" class="form" method="POST" id="movie_select">
                 <div class="row">
                     <div class="col-auto">
                         <select class="form-control" id="post_selected_movie" required>
                             <option value="" disabled selected hidden>Select movie...</option>
-                            {% for id, movie in disambiguation.items %}
-                                <option value="{{ id }}">{{ movie.title }} ({{ movie.year }})</option>
+                            {% for item in selections %}}
+                                <option value="{{ item.2 }}">{{ item.0 }} ({{ item.1 }})</option>
                             {% endfor %}
-                            <option value="other">Other</option>
+                            <option value="">Other</option>
                         </select>
                     </div>
                     <div class="col-auto">
@@ -20,7 +19,6 @@
                     </div>
                 </div>
             </form>
-            {% endif %}
         </div>
     </div>
     <div class="col text-right">
