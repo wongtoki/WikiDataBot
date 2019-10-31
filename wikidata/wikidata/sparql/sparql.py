@@ -60,10 +60,10 @@ class Courier:
         try:
             sparql_result = packages[intent_name](response)
             print ("Got here once \n")
-            if (len(sparql_result) == 0):
-                return default_response
+            if (sparql_result[0] == False):
+                return [True, [default_response]]
         except:
-            return default_response
+            return [True, [default_response]]
 
         return sparql_result
 
