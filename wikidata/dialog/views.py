@@ -90,11 +90,12 @@ def return_response(form):
     parsed = json.loads(json_resp.text)
     boolean, bot_resp = courier.deliver(parsed)
 
-    '''for debugging!'''''
+    '''for debugging!
     boolean = False
     bot_resp = [['Avatar', '2008', 'James'], ['Avatar the series', '2001', 'director_name']]
     print(boolean)
     print(bot_resp)
+    '''
 
     if boolean:
         '''The string response from DialogFlow should be returned'''
