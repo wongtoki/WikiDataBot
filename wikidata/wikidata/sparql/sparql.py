@@ -2,45 +2,39 @@ import requests
 from datetime import datetime
 import json
 import urllib.parse as encodeurl
+from SPARQLWrapper import SPARQLWrapper, JSON
 
 class Courier:
-    # This class is used as a universal parameter class
-    class Parameters:
-        moviename = ""
-        date = datetime.now
 
     def __init__(self):
         pass
 
+    # Communicates with the wikidata endpoint.
     def __send_query(self, query):
-        endpoint = "https://query.wikidata.org/sparql?format=json&query="
-        url = endpoint + encodeurl.quote(query)
-        res = requests.get(url).json()
-        value = res['results']
-        return value
-
-    def deliver(self, response):
+        endpoint_url = "https://query.wikidata.org/sparql"
 
         try:
-            moviename = response["parameters"]["fields"]["movie_name"]["stringValue"]
-            date = response["parameters"]["fields"]["date-period"]["endDate"]
-        except KeyError:
-            print("Could not find a movie name")
-            moviename = ""
-            date = datetime.today()
-            # return 'Could not find a movie'
+            sparql = SPARQLWrapper(endpoint_url)
+            sparql.setQuery(query)
+            sparql.setReturnFormat(JSON)
+            results = sparql.query().convert()
+        except:
+            print ("The wikidata endpoint is not answering")
+            return
 
+        value = results['results']
+        if (value):
+            return value
+        else:
+            print("\n query didnt work")
+            return
+
+    def deliver(self, response):
         # gets the intent name + default response from the DF response.
         intent_name = response["intent"]["displayName"]
         default_response = response["fulfillmentText"]
 
         print("intent name: ", intent_name)
-
-        # Creating the universal parameter object.
-        # This doesnt happen for every query though.
-        parameters = Courier.Parameters()
-        parameters.moviename = moviename
-        parameters.date = date
 
         # Assign function names to viariables so they won't be called during assignment
         ask_oscar_winner_movie = self.__query_oscar_movies
@@ -59,7 +53,6 @@ class Courier:
         # Calling the function assigned to the dictionary key
         try:
             sparql_result = packages[intent_name](response)
-            print ("Got here once \n")
             if (sparql_result[0] == False):
                 return [True, [default_response]]
         except:
@@ -68,7 +61,6 @@ class Courier:
         return sparql_result
 
     # Return the movie that won the Oscar in a given year
-    # Will return a single string.
     def __query_oscar_movies(self, response):
         year_string = response["parameters"]["fields"]["date-period"]["structValue"]["fields"]["endDate"]["stringValue"]
         year = year_string[:4]
@@ -100,7 +92,6 @@ class Courier:
     def __query_oscar_winner(self, response):
         year_string = response["parameters"]["fields"]["date-period"]["structValue"]["fields"]["endDate"]["stringValue"]
         year = year_string[:4]
-        print("============YEAR ==========", year)
 
         query_male_actor = """
             SELECT ?actor ?actorLabel ?date ?forWork ?forWorkLabel
@@ -131,8 +122,11 @@ class Courier:
             }
         """ % (year, year)
 
-        res1 = self.__send_query(query_male_actor)
-        res2 = self.__send_query(query_female_actor)
+        try:
+            res1 = self.__send_query(query_male_actor)
+            res2 = self.__send_query(query_female_actor)
+        except:
+            return [True, ["The Wikidata endpoint isnt answering."]]
 
         return [
             True,
