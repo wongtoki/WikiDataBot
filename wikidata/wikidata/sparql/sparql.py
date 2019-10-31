@@ -2,22 +2,31 @@ import requests
 from datetime import datetime
 import json
 import urllib.parse as encodeurl
+from SPARQLWrapper import SPARQLWrapper, JSON
 
 class Courier:
-    # This class is used as a universal parameter class
-    class Parameters:
-        moviename = ""
-        date = datetime.now
 
     def __init__(self):
         pass
 
     def __send_query(self, query):
-        endpoint = "https://query.wikidata.org/sparql?format=json&query="
-        url = endpoint + encodeurl.quote(query)
-        res = requests.get(url).json()
-        value = res['results']
-        return value
+        endpoint_url = "https://query.wikidata.org/sparql"
+
+        try:
+            sparql = SPARQLWrapper(endpoint_url)
+            sparql.setQuery(query)
+            sparql.setReturnFormat(JSON)
+            results = sparql.query().convert()
+        except:
+            print ("The wikidata endpoint is not answering")
+            return
+
+        value = results['results']
+        if (value):
+            return value
+        else:
+            print("\n query didnt work")
+            return
 
     def deliver(self, response):
 
@@ -36,12 +45,6 @@ class Courier:
 
         print("intent name: ", intent_name)
 
-        # Creating the universal parameter object.
-        # This doesnt happen for every query though.
-        parameters = Courier.Parameters()
-        parameters.moviename = moviename
-        parameters.date = date
-
         # Assign function names to viariables so they won't be called during assignment
         ask_oscar_winner_movie = self.__query_oscar_movies
         ask_oscar_winner = self.__query_oscar_winner
@@ -59,7 +62,6 @@ class Courier:
         # Calling the function assigned to the dictionary key
         try:
             sparql_result = packages[intent_name](response)
-            print ("Got here once \n")
             if (sparql_result[0] == False):
                 return [True, [default_response]]
         except:
@@ -116,6 +118,7 @@ class Courier:
             }
         """ % (year, year)
 
+        print(query_male_actor)
         query_female_actor = """
             SELECT ?actor ?actorLabel ?date ?forWork ?forWorkLabel
             WHERE
@@ -132,6 +135,7 @@ class Courier:
         """ % (year, year)
 
         res1 = self.__send_query(query_male_actor)
+        print ('\n res1 is :', res1)
         res2 = self.__send_query(query_female_actor)
 
         return [
