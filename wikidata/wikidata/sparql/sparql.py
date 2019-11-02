@@ -163,12 +163,13 @@ class Courier:
 
         results = [False,[]] # I am not sure about this line.
         for v in res["bindings"]:
-            output = {
-                "moviename": v["itemLabel"]["value"],
-                "year": v["year"]["value"]
-            }
-            results[1].append(output)
+            output = [
+                v["itemLabel"]["value"],
+                v["year"]["value"][:4]
+            ]
 
+            results[1].append(output)
+        print(results)
         return results
 
     def __query_oscar_winner_director(self, response):
