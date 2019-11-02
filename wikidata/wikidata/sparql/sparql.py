@@ -91,8 +91,6 @@ class Courier:
         """ % (year, year)
 
         res = self.__send_query(query)
-        # print(res['bindings'][0]['movie']['value'])
-        # print(res['bindings'][0]['movieLabel']['value'])
 
         return [
             True,
@@ -177,13 +175,15 @@ class Courier:
 
         results = [False,[]] # I am not sure about this line.
         for v in res["bindings"]:
-            output = [
-                v["itemLabel"]["value"],
-                v["year"]["value"][:4]
-            ]
+            # convert year to Python dateobject
+            date = convert_date(v["year"]["value"])
 
+            output = {
+                "moviename": v["itemLabel"]["value"],
+                "year": date.year
+            }
             results[1].append(output)
-        print(results)
+
         return results
 
     def __query_oscar_winner_director(self, response):
