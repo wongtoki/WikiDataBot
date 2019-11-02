@@ -8,7 +8,7 @@ var db_error = "<div class='alert alert-danger alert-dismissible'><strong>Our ba
             " We have encountered an error. <button type='button' class='close' data-dismiss='alert'>&times;</button></div>";
 
 var empty_form = "<div class='alert alert-warning alert-dismissible'><strong>Oops!</strong>" +
-            " Please fill in all the form fields. <button type='button' class='close' data-dismiss='alert'>&times;</button></div>";
+            " Please fill in the form fields. <button type='button' class='close' data-dismiss='alert'>&times;</button></div>";
 
 var no_results = "<div class='alert alert-info alert-dismissible'><strong>Oops!</strong>" +
                         " There are no results to show. <button type='button' class='close' data-dismiss='alert'>&times;</button></div>";
