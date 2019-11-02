@@ -7,14 +7,26 @@
     </div>
     <div class="col text-right">
         <div class="row justify-content-end">
-            {{ href }}
-            {% if link %}
-                <div class='alert alert-primary'>
-                    <a href="{{ link }} " target="_blank">{{ response }}</a>
-                </div>
-            {%  else %}
-                <div class='alert alert-primary'>{{ response }}</div>
-            {%  endif %}
+            <div class='alert alert-primary'>
+            {% if response is iterable and response is not string %}
+                <!-- check if response is just a list (with answers) -->
+                {% for answer in response %}
+                    {% if response|length == 1 %}
+                        <!-- check if response is a single list item -->
+                        {{ answer }}
+                    {% elif forloop.counter < response|length %}
+                        <!-- append list items by 'and' -->
+                        {{ answer }} and
+                    {% else %}
+                        <!-- end final list item with a period -->
+                        {{ answer }}.
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                <!-- response is just a string (response from DialogFlow) -->
+                {{ response }}
+            {% endif %}
+            </div>
         </div>
     </div>
 </div>
