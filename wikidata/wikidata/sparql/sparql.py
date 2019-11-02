@@ -276,7 +276,7 @@ class Courier:
         res = self.__send_query(query)
 
         # contains a dictionary with all the movie information
-        movies = return_dict(res, 'cast')
+        movies = movie_answer(res, 'cast')
 
         return [False, movies]
 
@@ -297,7 +297,7 @@ class Courier:
         res = self.__send_query(query)
 
         # contains a dictionary with all the movie information
-        movies = return_dict(res, 'director')
+        movies = movie_answer(res, 'director')
 
         return [False, movies]
 
@@ -306,24 +306,32 @@ def convert_date(sparql_timestamp):
     return datetime.datetime.strptime(sparql_timestamp, '%Y-%m-%dT%H:%M:%S%fZ')
 
 
-def return_dict(res, intent_name):
+def movie_answer(res, intent_name):
     '''returns a dictionary with all necessary information for HTML dropdown-select'''
 
     label = intent_name + 'Label'
 
     movies = {}
     for movie in res["bindings"]:
-        '''collect all the values we need per movie'''
+        '''collect all the static values we need per movie'''
         link = movie['item']['value']
         q_number = link.split('/')[-1]
         name = movie['itemLabel']['value']
-        answer = movie[label]['value']
         date = convert_date(movie["year"]["value"])
 
-        print(answer)
+        # fill a dictionary w/ q_number as identifier with movie information
+        movies[q_number] = {'title': name, 'year': date.year, 'href': link, 'answer': ''}
 
-        # append everything to the dictionary
-        movies[q_number] = {'title': name, 'year': date.year, 'href': link, 'answer': answer}
+    for movie in res['bindings']:
+        '''append each actual answer to a long string, because the amount of answers might be > 1'''
+        # get the identifier (q_number)
+        link = movie['item']['value']
+        q_number = link.split('/')[-1]
+        answer = movie[label]['value']
+
+        # append the answer to the a long string in the dictionary
+        # this way we can make a javascript array from this string
+        movies[q_number]['answer'] += answer + '|'
 
     return movies
 
