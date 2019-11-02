@@ -54,10 +54,15 @@ def wikidata_dialog(request):
             elif 'post_entity_title' in request.POST:
                 '''The user made a dropdown selection'''
 
-                intent_value = request.POST['post_entity']
+                intent_value = request.POST.getlist('post_entity[]')
                 movie_title = request.POST['post_entity_title']
 
-                if intent_value:
+                print('intent_value', intent_value)
+                print(type(intent_value))
+                print(intent_value[0])
+
+
+                if intent_value[0]:
                     '''A movie was selected by the user'''
 
                     # what HTML to return to user interface
@@ -69,6 +74,7 @@ def wikidata_dialog(request):
                     '''User selected the 'other' option in the dropdown-select'''
 
                     bot_resp = 'Please specify which movie a bit better.'
+
                     # what HTML to return to user interface
                     dialog = render_to_string('returns/normal_response.html',
                                               {'question': movie_title, 'response': bot_resp})
@@ -91,11 +97,6 @@ def return_response(form):
 
     parsed = json.loads(json_resp.text)
     boolean, bot_resp = courier.deliver(parsed)
-
-    '''for debugging!
-    boolean = False
-    bot_resp = [['Avatar', '2008', 'James'], ['Avatar the series', '2001', 'director_name']]
-    '''
 
     print(bot_resp)
 
@@ -137,6 +138,10 @@ def return_response(form):
         else:
             '''Multiple answers should be returned'''
 
+            # TODO: dit kan verwerkt worden in normal_response!!!
+            # TODO: manier vinden om dat ook te doen met die link
+            # TODO: sowieso willen we herhaling van de vraag in de response
+
             # what HTML to return to user interface
             dialog = render_to_string('returns/multiple_items.html',
                                       {'question': user_input, 'li_actors': bot_resp})
@@ -144,7 +149,7 @@ def return_response(form):
     else:
         '''A dropdown select with movie choices should be returned'''
 
-        response_question = 'Which of the following movies?'
+        response_question = 'Please select the correct movie.'
 
         # this orders the movies by year
         ordered = OrderedDict(sorted(bot_resp.items(),
