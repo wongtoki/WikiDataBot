@@ -121,6 +121,16 @@ function form_response(url_id, method_id, data_items) {
             console.log(xhr.status + ": " + xhr.responseText);
             $(error_id).html(db_error);
         },
+    }).done(function() {
+        // Run code after AJAX call is done
+        // var options = $('select.form-control option');
+        // console.log(options);
+        // var arr = options.map(function(_, o) { return { t: $(o).text(), v: o.value }; }).get();
+        // arr.sort(function(o1, o2) { return o1.t > o2.t ? 1 : o1.t < o2.t ? -1 : 0; });
+        // options.each(function(i, o) {
+        //   o.value = arr[i].v;
+        //   $(o).text(arr[i].t);
+        // });
     });
 }
 

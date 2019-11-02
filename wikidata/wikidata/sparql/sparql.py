@@ -19,7 +19,6 @@ class Courier:
             sparql.setQuery(query)
             sparql.setReturnFormat(JSON)
             results = sparql.query().convert()
-            print(results)
         except:
             print ("The wikidata endpoint is not answering")
             return
@@ -63,9 +62,6 @@ class Courier:
         # Calling the function assigned to the dictionary key
         try:
             sparql_result = packages[intent_name](response)
-
-            if (sparql_result[0] == False):
-                return [True, [default_response]]
         except:
             return [True, [default_response]]
 
@@ -171,7 +167,7 @@ class Courier:
             SELECT ?item ?itemLabel ?year
             WHERE
             {
-            ?item wdt:P31/wdt:P279* wd:Q11424 .
+            ?item wdt:P31/wdt:P279* wd:Q2431196 .
             ?item wdt:P1476 ?title .
             ?item wdt:P577 ?year .
             FILTER contains(lcase(str(?title)),"%s") .
@@ -181,7 +177,8 @@ class Courier:
 
         res = self.__send_query(query)
 
-        results = [False,[]] # I am not sure about this line.
+        results = [False,[]] # I am not sure about this line. # TODO: ??
+
         for v in res["bindings"]:
             # convert year to Python dateobject
             date = convert_date(v["year"]["value"])
@@ -231,7 +228,7 @@ class Courier:
             SELECT ?item ?itemLabel ?genreLabel
             WHERE
             {
-            ?item wdt:P31/wdt:P279* wd:Q11424 .
+            ?item wdt:P31/wdt:P279* wd:Q2431196 .
             ?item wdt:P1476 ?title .
             ?item wdt:P136 ?genre .
             FILTER contains(lcase(str(?title)),"%s") .
@@ -250,7 +247,7 @@ class Courier:
             SELECT ?item ?itemLabel ?duration
             WHERE
             {
-            ?item wdt:P31/wdt:P279* wd:Q11424 .
+            ?item wdt:P31/wdt:P279* wd:Q2431196 .
             ?item wdt:P1476 ?title .
             ?item wdt:P2047 ?duration .
             FILTER contains(lcase(str(?title)),"%s") .
@@ -265,45 +262,74 @@ class Courier:
     def __query_cast(self, response):
         movie = self.__get_movie_name(response)
         query = """
-            SELECT ?item ?itemLabel ?castLabel
+            SELECT ?item ?itemLabel ?castLabel ?year
             WHERE
             {
-            ?item wdt:P31/wdt:P279* wd:Q11424 .
+            ?item wdt:P31/wdt:P279* wd:Q2431196 .
             ?item wdt:P1476 ?title .
             ?item wdt:P161 ?cast .
+            ?item wdt:P577 ?year .
             FILTER contains(lcase(str(?title)),"%s") .
             SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
             }
         """ % (movie.lower())
         res = self.__send_query(query)
-        res = res["bindings"][0]
-        return [False, res] #Change this line
+
+        # contains a dictionary with all the movie information
+        movies = return_dict(res, 'cast')
+
+        return [False, movies]
 
     def __query_director(self, response):
         movie = self.__get_movie_name(response)
         query = """
-            SELECT ?item ?itemLabel ?directorLabel
+            SELECT ?item ?itemLabel ?directorLabel ?year
             WHERE
             {
-            ?item wdt:P31/wdt:P279* wd:Q11424 .
+            ?item wdt:P31/wdt:P279* wd:Q2431196 .
             ?item wdt:P1476 ?title .
             ?item wdt:P57 ?director .
-            FILTER contains(?title,"%s") .
+            ?item wdt:P577 ?year .
+            FILTER contains(lcase(str(?title)),"%s")
             SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
             }
         """ % (movie.lower())
         res = self.__send_query(query)
-        res = res["bindings"][0]
-        return [False, res] #Change this line
+
+        # contains a dictionary with all the movie information
+        movies = return_dict(res, 'director')
+
+        return [False, movies]
 
 def convert_date(sparql_timestamp):
     '''convert JSON timestamp to Python date object'''
     return datetime.datetime.strptime(sparql_timestamp, '%Y-%m-%dT%H:%M:%S%fZ')
 
 
+def return_dict(res, intent_name):
+    '''returns a dictionary with all necessary information for HTML dropdown-select'''
+
+    label = intent_name + 'Label'
+
+    movies = {}
+    for movie in res["bindings"]:
+        '''collect all the values we need per movie'''
+        link = movie['item']['value']
+        q_number = link.split('/')[-1]
+        name = movie['itemLabel']['value']
+        answer = movie[label]['value']
+        date = convert_date(movie["year"]["value"])
+
+        print(answer)
+
+        # append everything to the dictionary
+        movies[q_number] = {'title': name, 'year': date.year, 'href': link, 'answer': answer}
+
+    return movies
+
 if __name__ == "__main__":
     courior = Courier()
 
     delivery = courior.deliver()
-    print(delivery)
+    # print(delivery)
     # print(courior.query_oscar_winner_actor(2019))

@@ -8,6 +8,8 @@ from wikidata.dialogflow.dialogflow import Agent
 import json
 import random
 import string
+from collections import OrderedDict
+from operator import getitem
 
 # import models
 
@@ -95,6 +97,8 @@ def return_response(form):
     bot_resp = [['Avatar', '2008', 'James'], ['Avatar the series', '2001', 'director_name']]
     '''
 
+    print(bot_resp)
+
     if boolean:
         '''The string response from DialogFlow should be returned'''
 
@@ -119,7 +123,7 @@ def return_response(form):
                 responses = [
                     "Sorry, I did not get that.",
                     "Could you repeat that?",
-                    "That did not make sense.",
+                    "I did not understand, can you repeat?",
                     "I don't understand that.",
                     "Sorry, could you say that again?"
                 ]
@@ -137,14 +141,17 @@ def return_response(form):
             dialog = render_to_string('returns/multiple_items.html',
                                       {'question': user_input, 'li_actors': bot_resp})
 
-
     else:
         '''A dropdown select with movie choices should be returned'''
 
         response_question = 'Which of the following movies?'
 
+        # this orders the movies by year
+        ordered = OrderedDict(sorted(bot_resp.items(),
+                                     key=lambda x: getitem(x[1], 'year')))
+
         # what HTML to return to user interface
-        dialog = render_to_string('returns/dropdown_select.html', {'question': user_input, 'response': response_question, 'selections': bot_resp})
+        dialog = render_to_string('returns/dropdown_select.html', {'question': user_input, 'response': response_question, 'selections': ordered})
 
     response = {'response': dialog}
 

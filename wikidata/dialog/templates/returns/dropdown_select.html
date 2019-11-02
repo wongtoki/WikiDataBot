@@ -5,19 +5,19 @@
             <div class="col-md-12">
                 <div class='alert alert-light'>{{ question }}</div>
             </div>
-            <div class="col-md-12">
+            <div class="col-md-12" id="dropdown_select">
                 <form class="form" action="wikidata_dialog/" class="form" method="POST" id="movie_select">
                     <div class="row">
-                        <div class="col-auto">
+                        <div class="col-md-6">
                             <select class="form-control" id="post_selected_movie" required>
                                 <option value="" disabled selected hidden>Select movie...</option>
-                                {% for item in selections %}}
-                                    <option value="{{ item.2 }}">{{ item.0 }} ({{ item.1 }})</option>
+                                {% for q_number, movie in selections.items %}}
+                                    <option value="{{ movie.answer }}" id="{{ q_number }}" link="{{ movie.href }}">{{ movie.title }} ({{ movie.year }})</option>
                                 {% endfor %}
                                 <option value="">Other</option>
                             </select>
                         </div>
-                        <div class="col-auto">
+                        <div class="col-md-6">
                             <button type="submit" class="btn btn-primary" id="submit_movie_select">Choose</button>
                         </div>
                     </div>
