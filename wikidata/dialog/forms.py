@@ -10,5 +10,7 @@ class dialogForm(forms.Form):
             'class': 'form-control',
             'type': 'search',
             'placeholder': 'Type a question',
+            'pattern': '[a-zA-Z0-9-]+',
+            'required': True
             })
         )
