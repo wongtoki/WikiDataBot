@@ -177,15 +177,13 @@ class Courier:
 
         results = [False,[]] # I am not sure about this line.
         for v in res["bindings"]:
-            # convert year to Python dateobject
-            date = convert_date(v["year"]["value"])
+            output = [
+                v["itemLabel"]["value"],
+                v["year"]["value"][:4]
+            ]
 
-            output = {
-                "moviename": v["itemLabel"]["value"],
-                "year": date.year
-            }
             results[1].append(output)
-
+        print(results)
         return results
 
     def __query_oscar_winner_director(self, response):
@@ -218,9 +216,60 @@ class Courier:
             ]
         ]
 
-    def __query_genre(self, params):
-        pass
+    def __query_genre(self, response):
+        movie = self.__get_movie_name(response)
 
+        query = """
+            SELECT ?item ?itemLabel ?genreLabel
+            WHERE
+            {
+            ?item wdt:P31/wdt:P279* wd:Q11424 .
+            ?item wdt:P1476 ?title .
+            ?item wdt:P136 ?genre .
+            FILTER contains(lcase(str(?title)),"%s")
+            SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+            }
+        """ % (movie.lower())
+
+        res = self.__send_query(query)
+        res = res["bindings"][0]
+        return [False, res] #Change this line
+
+    def __query_duration(self, response):
+        movie = self.__get_movie_name(response)
+
+        query = """
+            SELECT ?item ?itemLabel ?duration
+            WHERE
+            {
+            ?item wdt:P31/wdt:P279* wd:Q11424 .
+            ?item wdt:P1476 ?title .
+            ?item wdt:P2047 ?duration .
+            FILTER contains(lcase(str(?title)),"%s")
+            SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+            }
+        """ % (movie.lower())
+
+        res = self.__send_query(query)
+        res = res["bindings"][0]
+        return [False, res] #Change this line
+
+    def __query_cast(self, response):
+        movie = self.__get_movie_name(response)
+        query = """
+            SELECT ?item ?itemLabel ?castLabel
+            WHERE
+            {
+            ?item wdt:P31/wdt:P279* wd:Q11424 .
+            ?item wdt:P1476 ?title .
+            ?item wdt:P161 ?cast .
+            FILTER contains(lcase(str(?title)),"%s")
+            SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+            }
+        """ % (movie.lower())
+        res = self.__send_query(query)
+        res = res["bindings"][0]
+        return [False, res] #Change this line
 
 def convert_date(sparql_timestamp):
     '''convert JSON timestamp to Python date object'''
