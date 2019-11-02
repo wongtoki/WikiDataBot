@@ -43,13 +43,21 @@ class Courier:
         ask_oscar_winner = self.__query_oscar_winner
         ask_release_date = self.__query_movie_release_date
         ask_oscar_winner_director = self.__query_oscar_winner_director
+        ask_director = self.__query_director
+        ask_duration = self.__query_duration
+        ask_genre = self.__query_genre
+        ask_cast = self.__query_cast
 
         # Using a dictionary for easy intent response
         packages = {
             "ask_oscar_winner": ask_oscar_winner,
             "ask_oscar_winner_movie": ask_oscar_winner_movie,
             "ask_release_date": ask_release_date,
-            "ask_oscar_winner_director": ask_oscar_winner_director
+            "ask_oscar_winner_director": ask_oscar_winner_director,
+            "ask_director": ask_director,
+            "ask_duration": ask_duration,
+            "ask_genre": ask_genre,
+            "ask_cast" : ask_cast
         }
 
         # Calling the function assigned to the dictionary key
@@ -166,7 +174,7 @@ class Courier:
             ?item wdt:P31/wdt:P279* wd:Q11424 .
             ?item wdt:P1476 ?title .
             ?item wdt:P577 ?year .
-            FILTER contains(lcase(str(?title)),"%s")
+            FILTER contains(lcase(str(?title)),"%s") .
             SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
             }
         """ % (movie.lower())
@@ -226,7 +234,7 @@ class Courier:
             ?item wdt:P31/wdt:P279* wd:Q11424 .
             ?item wdt:P1476 ?title .
             ?item wdt:P136 ?genre .
-            FILTER contains(lcase(str(?title)),"%s")
+            FILTER contains(lcase(str(?title)),"%s") .
             SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
             }
         """ % (movie.lower())
@@ -245,7 +253,7 @@ class Courier:
             ?item wdt:P31/wdt:P279* wd:Q11424 .
             ?item wdt:P1476 ?title .
             ?item wdt:P2047 ?duration .
-            FILTER contains(lcase(str(?title)),"%s")
+            FILTER contains(lcase(str(?title)),"%s") .
             SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
             }
         """ % (movie.lower())
@@ -263,7 +271,24 @@ class Courier:
             ?item wdt:P31/wdt:P279* wd:Q11424 .
             ?item wdt:P1476 ?title .
             ?item wdt:P161 ?cast .
-            FILTER contains(lcase(str(?title)),"%s")
+            FILTER contains(lcase(str(?title)),"%s") .
+            SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+            }
+        """ % (movie.lower())
+        res = self.__send_query(query)
+        res = res["bindings"][0]
+        return [False, res] #Change this line
+
+    def __query_director(self, response):
+        movie = self.__get_movie_name(response)
+        query = """
+            SELECT ?item ?itemLabel ?directorLabel
+            WHERE
+            {
+            ?item wdt:P31/wdt:P279* wd:Q11424 .
+            ?item wdt:P1476 ?title .
+            ?item wdt:P57 ?director .
+            FILTER contains(?title,"%s") .
             SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
             }
         """ % (movie.lower())
