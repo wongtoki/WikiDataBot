@@ -90,18 +90,24 @@ def return_response(form):
     parsed = json.loads(json_resp.text)
     boolean, bot_resp = courier.deliver(parsed)
 
-    '''for debugging!
+    '''for debugging!'''
     boolean = False
     bot_resp = [['Avatar', '2008', 'James'], ['Avatar the series', '2001', 'director_name']]
-    print(boolean)
+
     print(bot_resp)
-    '''
 
     if boolean:
         '''The string response from DialogFlow should be returned'''
 
         # bot_resp is always a list, with in this case the string in it
-        textual_response = bot_resp[0]
+        # TODO: if there's more responses it returns multiple list items.. which then need to be concatenated here
+        # TODO: should be done in the actual output of courier.deliver()
+        # TODO: for now this is an easy fix
+        if len(bot_resp) == 1:
+            textual_response = bot_resp[0]
+        else:
+            textual_response = ' and '.join(bot_resp)
+            print(textual_response)
 
         # what HTML to return to user interface
         dialog = render_to_string('returns/normal_response.html', {'question': user_input, 'response': textual_response})

@@ -145,7 +145,6 @@ section {
 /* alerts */
 .alert {
     margin-top: 1rem;
-    max-height: 50px;
 }
 
 /* sticky */
