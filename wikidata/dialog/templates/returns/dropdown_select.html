@@ -2,23 +2,27 @@
 <div class="row">
     <div class="col text-left">
         <div class="row justify-content-start">
-            <div class='alert alert-light'>{{ question }}</div>
-            <form class="form" action="wikidata_dialog/" class="form" method="POST" id="movie_select">
-                <div class="row">
-                    <div class="col-auto">
-                        <select class="form-control" id="post_selected_movie" required>
-                            <option value="" disabled selected hidden>Select movie...</option>
-                            {% for item in selections %}}
-                                <option value="{{ item.2 }}">{{ item.0 }} ({{ item.1 }})</option>
-                            {% endfor %}
-                            <option value="">Other</option>
-                        </select>
+            <div class="col-md-12">
+                <div class='alert alert-light'>{{ question }}</div>
+            </div>
+            <div class="col-md-12">
+                <form class="form" action="wikidata_dialog/" class="form" method="POST" id="movie_select">
+                    <div class="row">
+                        <div class="col-auto">
+                            <select class="form-control" id="post_selected_movie" required>
+                                <option value="" disabled selected hidden>Select movie...</option>
+                                {% for item in selections %}}
+                                    <option value="{{ item.2 }}">{{ item.0 }} ({{ item.1 }})</option>
+                                {% endfor %}
+                                <option value="">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-primary" id="submit_movie_select">Choose</button>
+                        </div>
                     </div>
-                    <div class="col-auto">
-                        <button type="submit" class="btn btn-primary" id="submit_movie_select">Choose</button>
-                    </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
     <div class="col text-right">
