@@ -18,6 +18,7 @@ class Courier:
             sparql.setQuery(query)
             sparql.setReturnFormat(JSON)
             results = sparql.query().convert()
+            print(results)
         except:
             print ("The wikidata endpoint is not answering")
             return
@@ -160,7 +161,7 @@ class Courier:
 
         res = self.__send_query(query)
 
-        results = [True,[]] # I am not sure about this line.
+        results = [False,[]] # I am not sure about this line.
         for v in res["bindings"]:
             output = {
                 "moviename": v["itemLabel"]["value"],
