@@ -35,11 +35,18 @@ $( document ).on('click', '#submit_movie_select', function(event){
         loading('#qa_dialog', '#selected_movie', '#submit_movie_select');
         // console.log('prevented');
         $('#qa_response').html('');
+
+        // convert the answer string to a JS array
+        var answer_string = $('#post_selected_movie').val();
+        var answer_list = answer_string.split("|");
+        // remove last (empty) item from array
+        answer_list.pop();
+
         // Ajax call;
         var url_id = $('#movie_select').prop('action');
         var method_id = $('#movie_select').prop('method');
         var data_items = {
-            post_entity: $('#post_selected_movie').val(),
+            post_entity: answer_list,
             post_entity_title: $('#post_selected_movie option:selected').text(),
         };
         form_response(url_id, method_id, data_items);
