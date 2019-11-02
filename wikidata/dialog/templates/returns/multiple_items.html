@@ -1,0 +1,23 @@
+
+
+<div class="row">
+    <div class="col text-left">
+        <div class="row justify-content-start">
+            <div class='alert alert-light'>{{ question }}</div>
+        </div>
+    </div>
+    <div class="col text-right">
+        <div class="row justify-content-end">
+            <div class='alert alert-primary'>
+            {%  for actor in li_actors %}
+                {% if forloop.counter == 1 %}
+                    <a href="{{ actor.1 }}" target="_blank">{{ actor.0 }}</a> and
+                {% endif %}
+                {% if forloop.counter == 2 %}
+                    <a href="{{ actor.1 }}" target="_blank">{{ actor.0 }}</a>
+                {% endif %}
+            {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>

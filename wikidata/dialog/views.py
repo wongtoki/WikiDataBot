@@ -90,34 +90,59 @@ def return_response(form):
     parsed = json.loads(json_resp.text)
     boolean, bot_resp = courier.deliver(parsed)
 
-    '''for debugging!'''
+    '''for debugging!
     boolean = False
     bot_resp = [['Avatar', '2008', 'James'], ['Avatar the series', '2001', 'director_name']]
-
-    print(bot_resp)
+    '''
 
     if boolean:
         '''The string response from DialogFlow should be returned'''
 
-        # bot_resp is always a list, with in this case the string in it
-        # TODO: if there's more responses it returns multiple list items.. which then need to be concatenated here
-        # TODO: should be done in the actual output of courier.deliver()
-        # TODO: for now this is an easy fix
         if len(bot_resp) == 1:
-            textual_response = bot_resp[0]
-        else:
-            textual_response = ' and '.join(bot_resp)
-            print(textual_response)
+            '''One string should be returned'''
+            href = False # boolean value for a link
 
-        # what HTML to return to user interface
-        dialog = render_to_string('returns/normal_response.html', {'question': user_input, 'response': textual_response})
+            if bot_resp[0]:
+                '''The response is valid'''
+                for answer in bot_resp:
+                    if isinstance(answer, str):
+                        '''the answer is just a simple string (provided by Dialogflow)'''
+                        textual_response = answer
+                    elif isinstance(answer, list):
+                        '''A link to the answer can be provided (it is an actual answer provided by Wikidata)'''
+                        textual_response = answer[0]
+                        href = answer[1]
+            else:
+                '''The response is not valid'''
+                print('There is an empty response from the Courier..')
+
+                responses = [
+                    "Sorry, I did not get that.",
+                    "Could you repeat that?",
+                    "That did not make sense.",
+                    "I don't understand that.",
+                    "Sorry, could you say that again?"
+                ]
+
+                textual_response = random.choice(responses)
+
+            # what HTML to return to user interface
+            dialog = render_to_string('returns/normal_response.html',
+                                      {'question': user_input, 'response': textual_response, 'link': href})
+
+        else:
+            '''Multiple answers should be returned'''
+
+            # what HTML to return to user interface
+            dialog = render_to_string('returns/multiple_items.html',
+                                      {'question': user_input, 'li_actors': bot_resp})
+
 
     else:
         '''A dropdown select with movie choices should be returned'''
 
         response_question = 'Which of the following movies?'
 
-        print(bot_resp)
         # what HTML to return to user interface
         dialog = render_to_string('returns/dropdown_select.html', {'question': user_input, 'response': response_question, 'selections': bot_resp})
 
