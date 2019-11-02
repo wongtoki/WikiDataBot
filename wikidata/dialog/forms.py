@@ -10,7 +10,7 @@ class dialogForm(forms.Form):
             'class': 'form-control',
             'type': 'search',
             'placeholder': 'Type a question',
-            'pattern': '[\w ]+[\?]?',
+            'pattern': '[\w ]+[\?\.]?',
             'required': True
             })
         )
