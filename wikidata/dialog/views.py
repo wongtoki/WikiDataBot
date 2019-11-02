@@ -117,6 +117,7 @@ def return_response(form):
 
         response_question = 'Which of the following movies?'
 
+        print(bot_resp)
         # what HTML to return to user interface
         dialog = render_to_string('returns/dropdown_select.html', {'question': user_input, 'response': response_question, 'selections': bot_resp})
 
