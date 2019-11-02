@@ -3,6 +3,7 @@ from datetime import datetime
 import json
 import urllib.parse as encodeurl
 from SPARQLWrapper import SPARQLWrapper, JSON
+import datetime
 
 class Courier:
 
@@ -37,7 +38,7 @@ class Courier:
 
         print("intent name: ", intent_name)
 
-        # Assign function names to viariables so they won't be called during assignment
+        # Assign function names to variables so they won't be called during assignment
         ask_oscar_winner_movie = self.__query_oscar_movies
         ask_oscar_winner = self.__query_oscar_winner
         ask_release_date = self.__query_movie_release_date
@@ -54,6 +55,7 @@ class Courier:
         # Calling the function assigned to the dictionary key
         try:
             sparql_result = packages[intent_name](response)
+
             if (sparql_result[0] == False):
                 return [True, [default_response]]
         except:
@@ -89,10 +91,16 @@ class Courier:
         """ % (year, year)
 
         res = self.__send_query(query)
+        # print(res['bindings'][0]['movie']['value'])
+        # print(res['bindings'][0]['movieLabel']['value'])
+
         return [
             True,
             [
-                res['bindings'][0]['movieLabel']['value']
+                [
+                    res['bindings'][0]['movieLabel']['value'],  # the movie name
+                    res['bindings'][0]['movie']['value']  # the Wikidata link
+                ]
             ]
         ]
 
@@ -140,8 +148,14 @@ class Courier:
         return [
             True,
             [
-                res1['bindings'][0]['actorLabel']['value'],
-                res2['bindings'][0]['actorLabel']['value']
+                [
+                    res1['bindings'][0]['actorLabel']['value'], # the actor name
+                    res1['bindings'][0]['actor']['value'] # the Wikidata link
+                ],
+                [
+                    res2['bindings'][0]['actorLabel']['value'], # the actress name
+                    res2['bindings'][0]['actor']['value'] # the Wikidata link
+                ]
             ]
         ]
 
@@ -163,9 +177,12 @@ class Courier:
 
         results = [False,[]] # I am not sure about this line.
         for v in res["bindings"]:
+            # convert year to Python dateobject
+            date = convert_date(v["year"]["value"])
+
             output = {
                 "moviename": v["itemLabel"]["value"],
-                "year": v["year"]["value"]
+                "year": date.year
             }
             results[1].append(output)
 
@@ -190,10 +207,24 @@ class Courier:
         """ % (year, year)
         res = self.__send_query(query)
         res = res["bindings"][0]
-        return [True, [res["actorLabel"]["value"]]]
+
+        return [
+            True,
+            [
+                [
+                    res["actorLabel"]["value"],  # the director's name
+                    res["actor"]["value"]  # the Wikidata link
+                ]
+            ]
+        ]
 
     def __query_genre(self, params):
         pass
+
+
+def convert_date(sparql_timestamp):
+    '''convert JSON timestamp to Python date object'''
+    return datetime.datetime.strptime(sparql_timestamp, '%Y-%m-%dT%H:%M:%S%fZ')
 
 
 if __name__ == "__main__":
