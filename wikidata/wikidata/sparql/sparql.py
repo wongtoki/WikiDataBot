@@ -198,7 +198,6 @@ class Courier:
         ]
 
 
-    # TODO: follow four queries all use the same format..
     def __query_movie_release_date(self, response):
         '''Return the release date for a given movie'''
         movie = self.__get_movie_name(response)
@@ -218,31 +217,6 @@ class Courier:
 
         # contains a dictionary with all the movie information
         movies = movie_answer(res, "year")
-
-        return [False, movies]
-
-
-    def __query_genre(self, response):
-        '''Return the genre for a given movie'''
-        movie = self.__get_movie_name(response)
-
-        query = """
-            SELECT ?item ?itemLabel ?genreLabel ?year
-            WHERE
-            {
-            ?item wdt:P31/wdt:P279* wd:Q2431196 .
-            ?item wdt:P1476 ?title .
-            ?item wdt:P136 ?genre .
-            ?item wdt:P577 ?year .
-            FILTER contains(lcase(str(?title)),"%s") .
-            SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
-            }
-        """ % (movie.lower())
-
-        res = self.__send_query(query)
-
-        # contains a dictionary with all the movie information
-        movies = movie_answer(res, "genreLabel")
 
         return [False, movies]
 
@@ -268,6 +242,31 @@ class Courier:
 
         # contains a dictionary with all the movie information
         movies = movie_answer(res, 'duration')
+
+        return [False, movies]
+
+
+    def __query_genre(self, response):
+        '''Return the genre for a given movie'''
+        movie = self.__get_movie_name(response)
+
+        query = """
+            SELECT ?item ?itemLabel ?genreLabel ?year
+            WHERE
+            {
+            ?item wdt:P31/wdt:P279* wd:Q2431196 .
+            ?item wdt:P1476 ?title .
+            ?item wdt:P136 ?genre .
+            ?item wdt:P577 ?year .
+            FILTER contains(lcase(str(?title)),"%s") .
+            SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+            }
+        """ % (movie.lower())
+
+        res = self.__send_query(query)
+
+        # contains a dictionary with all the movie information
+        movies = movie_answer(res, "genreLabel")
 
         return [False, movies]
 
@@ -347,7 +346,11 @@ def movie_answer(res, label):
         if label == "year":
             '''exception for query_movie_release_date, to convert to Python dateobject'''
             date = convert_date(answer)
-            answer = date.strftime("%A %d %B, %Y")
+            # wanted to do a more beautiful format, but there's too much noise in the Wikidata
+            # there are multiple different dates for one movie
+            # answer = date.strftime("%A %d %B, %Y")
+            answer = date.year
+
         elif label == "duration":
             '''exception for duration, to append "minutes" after the answer'''
             answer = answer + ' minutes'
