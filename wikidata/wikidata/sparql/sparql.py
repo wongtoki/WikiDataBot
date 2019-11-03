@@ -9,7 +9,7 @@ class Courier:
 
     def __init__(self):
         # global variable for Wikidata returning an empty query response
-        self.no_wikidata = 'Unfortunately, This information is not on Wikidata.'
+        self.no_wikidata = 'Unfortunately, this information is not on Wikidata.'
 
     # Communicates with the wikidata endpoint.
     def __send_query(self, query):
