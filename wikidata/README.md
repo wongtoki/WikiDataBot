@@ -1,6 +1,36 @@
 # Wikidata front-end
 
-1. Create a virtual environment with all of the packages in it.
+Requires Python >= 3.6.9
+
+1. Install virtualenv
+
+```
+pip install virtualenv
+```
+
+2. Initialise a virtual enivronment
+
+```
+virtualenv venv
+```
+
+3. Activate the virutual environment 
+
+```
+source venv/bin/activate
+```
+
+4. Install the dependencies in requirements.txt
+
+```
+cd wikidata
+pip install -r requirements.txt
+```
+
 2. Go to wikidata folder that has 'manage.py' in it and run:
-    python manage.py runserver
-3. Go to this webpage: http://127.0.0.1:8000/
+
+```
+python3 manage.py runserver
+```
+
+3. Go to this webpage: http://127.0.0.1:8000/ or http://localhost:8000/
