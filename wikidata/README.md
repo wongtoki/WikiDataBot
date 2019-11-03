@@ -27,10 +27,10 @@ cd wikidata
 pip install -r requirements.txt
 ```
 
-2. Go to wikidata folder that has 'manage.py' in it and run:
+5. Go to wikidata folder that has 'manage.py' in it and run:
 
 ```
 python3 manage.py runserver
 ```
 
-3. Go to this webpage: http://127.0.0.1:8000/ or http://localhost:8000/
+6. Go to this webpage: http://127.0.0.1:8000/ or http://localhost:8000/
