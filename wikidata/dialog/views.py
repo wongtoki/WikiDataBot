@@ -22,6 +22,7 @@ def create_random_string():
     random_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
     return random_string
 
+
 # Create your views here.
 def index(request):
     '''This is what is displayed on the normal page'''
@@ -37,6 +38,7 @@ def index(request):
         'form': form,
     }
     return render(request, 'index.html', context)
+
 
 @csrf_exempt
 def wikidata_dialog(request):
@@ -57,7 +59,7 @@ def wikidata_dialog(request):
                 intent_value = request.POST.getlist('post_entity[]')
                 movie_title = request.POST['post_entity_title']
 
-                '''debugging
+                '''for debugging
                 print('intent_value', intent_value)
                 print(type(intent_value))
                 print(intent_value[0])

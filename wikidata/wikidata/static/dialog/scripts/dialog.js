@@ -119,7 +119,7 @@ function form_response(url_id, method_id, data_items) {
                 objDiv.scrollTop = objDiv.scrollHeight;
                 // empty the form field
                 $('#post-search-query').val('');
-                $(error_id).html(work_in_progress);
+                // $(error_id).html(work_in_progress);
             }
         },
         error : function(xhr) {console.log("error. see details below.");
