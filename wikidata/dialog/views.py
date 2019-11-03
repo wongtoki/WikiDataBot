@@ -69,7 +69,7 @@ def wikidata_dialog(request):
                 else:
                     '''User selected the 'other' option in the dropdown-select'''
 
-                    bot_resp = 'Please specify which movie a bit better.'
+                    bot_resp = [['Please specify which movie a bit better.']]
 
                     # what HTML to return to user interface
                     dialog = render_to_string('returns/normal_response.html',
@@ -97,8 +97,7 @@ def return_response(form):
 
     '''for debugging
     print('bot_resp')
-    print(bot_resp)
-    '''
+    print(bot_resp)'''
 
     if boolean:
         '''Response is a lists of lists, with either ['string'] or [answer, link]'''
