@@ -16,7 +16,7 @@ class Courier:
         endpoint_url = "https://query.wikidata.org/sparql"
 
         try:
-            # TODO: change the library
+            # TODO: why use the SPARQLWrapper library instead of the normal requests?
             # create the request
             # data = requests.get('https://query.wikidata.org/sparql',
             #                     params={'query': query, 'format': 'json'}).json()
