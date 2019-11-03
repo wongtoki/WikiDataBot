@@ -1,0 +1,26 @@
+
+<div class="row">
+    <div class="col text-left">
+        <div class="row justify-content-start">
+            <div class='alert alert-light'>{{ question }}</div>
+        </div>
+    </div>
+    <div class="col text-right">
+        <div class="row justify-content-end">
+            <div class='alert alert-primary'>
+                {% for answer in response %}
+                    {% if response|length == 1 %}
+                        <!-- check if response is a single list item -->
+                        {{ answer }}
+                    {% elif forloop.counter < response|length %}
+                        <!-- append list items by 'and' -->
+                        {{ answer }} and
+                    {% else %}
+                        <!-- end final list item with a period -->
+                        {{ answer }}.
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
