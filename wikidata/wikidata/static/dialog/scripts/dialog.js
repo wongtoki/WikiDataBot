@@ -1,14 +1,14 @@
 // INTERACTIVE FORMS //
 // POST form recalculate_user events
 
-var work_in_progress = "<div class='alert alert-warning alert-dismissible'><strong>Oops!</strong>" +
-            " This is still a work in progress. <button type='button' class='close' data-dismiss='alert'>&times;</button></div>";
+var loading_time = "<div class='alert alert-warning alert-dismissible'><strong>Please be patient.</strong>" +
+            " It might take some time to gather the answer. <button type='button' class='close' data-dismiss='alert'>&times;</button></div>";
 
 var db_error = "<div class='alert alert-danger alert-dismissible'><strong>Our bad!</strong>" +
-            " We have encountered an error. <button type='button' class='close' data-dismiss='alert'>&times;</button></div>";
+            " We have encountered an error, please try again. <button type='button' class='close' data-dismiss='alert'>&times;</button></div>";
 
 var empty_form = "<div class='alert alert-warning alert-dismissible'><strong>Oops!</strong>" +
-            " Please fill in the form fields. <button type='button' class='close' data-dismiss='alert'>&times;</button></div>";
+            " Please fill in the form fields using only words and digits. <button type='button' class='close' data-dismiss='alert'>&times;</button></div>";
 
 var no_results = "<div class='alert alert-info alert-dismissible'><strong>Oops!</strong>" +
                         " There are no results to show. <button type='button' class='close' data-dismiss='alert'>&times;</button></div>";
@@ -26,6 +26,7 @@ function done(dialog_id, input_field, submit_btn) {
     $(submit_btn).prop('disabled', false);
 }
 
+
 // dropdown_select movie name options
 $( document ).on('click', '#submit_movie_select', function(event){
     // use HTML5 form-validation check
@@ -40,12 +41,14 @@ $( document ).on('click', '#submit_movie_select', function(event){
         var answer_string = $('#post_selected_movie').val();
         var answer_list = answer_string.split("|");
 
+
         // Ajax call;
         var url_id = $('#movie_select').prop('action');
         var method_id = $('#movie_select').prop('method');
         var data_items = {
             post_entity: answer_list,
             post_entity_title: $('#post_selected_movie option:selected').text(),
+            post_entity_link: $('#post_selected_movie option:selected').attr('link'),
         };
         form_response(url_id, method_id, data_items);
 
@@ -56,6 +59,7 @@ $( document ).on('click', '#submit_movie_select', function(event){
 
 } );
 
+
 // normal dialog user input field where user can type
 $('#submit_qa_query').click(function(event){
     // use HTML5 form-validation check
@@ -63,13 +67,17 @@ $('#submit_qa_query').click(function(event){
         event.preventDefault();
         // show spinner loading icon
         loading('#qa_dialog', '#post-search-query', '#submit_qa_query');
-        // console.log('prevented');
-        $('#qa_response').html('');
+
+        // show response during loading
+        $('#qa_response').html(loading_time);
+
+        // items for AJAX call
         var url_id = $('#qa_query').prop('action');
         var method_id = $('#qa_query').prop('method');
         var data_items = {
             post_search: $('#post-search-query').val(),
         };
+        // AJAX call
         form_response(url_id, method_id, data_items);
     }
     else {
@@ -119,7 +127,6 @@ function form_response(url_id, method_id, data_items) {
                 objDiv.scrollTop = objDiv.scrollHeight;
                 // empty the form field
                 $('#post-search-query').val('');
-                // $(error_id).html(work_in_progress);
             }
         },
         error : function(xhr) {console.log("error. see details below.");
@@ -129,6 +136,7 @@ function form_response(url_id, method_id, data_items) {
     }).done(function() {
         // Run code after AJAX call is done
         console.log("AJAX call is done");
+        $(error_id).html('');
     });
 }
 

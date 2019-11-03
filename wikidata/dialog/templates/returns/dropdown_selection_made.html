@@ -8,6 +8,7 @@
     <div class="col text-right">
         <div class="row justify-content-end">
             <div class='alert alert-primary'>
+                <a href="{{ link }}" target="_blank">{{ question }}</a>:
                 {% for answer in response %}
                     {% if response|length == 1 %}
                         <!-- check if response is a single list item -->
