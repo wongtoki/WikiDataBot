@@ -33,6 +33,7 @@ class Courier:
             print("\n query didnt work")
             return
 
+
     def deliver(self, response):
         # gets the intent name + default response from the DF response.
         intent_name = response["intent"]["displayName"]

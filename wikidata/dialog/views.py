@@ -17,12 +17,6 @@ from operator import getitem
 from dialog.forms import dialogForm
 
 
-def create_random_string():
-    '''A function to return a random string used for the Agent'''
-    random_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
-    return random_string
-
-
 # Create your views here.
 def index(request):
     '''This is what is displayed on the normal page'''
@@ -52,6 +46,7 @@ def wikidata_dialog(request):
 
                 # the returned dialog in HTML-format
                 dialog = return_response(request)
+                print(dialog)
 
             elif 'post_entity_title' in request.POST:
                 '''The user made a dropdown selection'''
@@ -83,8 +78,8 @@ def wikidata_dialog(request):
 
 
             res = {'response': dialog}
-
             return HttpResponse(json.dumps(res), 'application/json')
+
 
 
 def return_response(form):
@@ -153,7 +148,7 @@ def return_response(form):
             dialog = render_to_string('returns/normal_response.html',
                                       {'question': user_input, 'response': bot_resp})
 
-        return dialog
+    return dialog
 
 
 def create_random_string():
