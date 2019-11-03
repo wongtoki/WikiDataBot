@@ -8,7 +8,8 @@ import datetime
 class Courier:
 
     def __init__(self):
-        pass
+        # global variable for Wikidata returning an empty query response
+        self.no_wikidata = 'Unfortunately, This information is not on Wikidata.'
 
     # Communicates with the wikidata endpoint.
     def __send_query(self, query):
@@ -24,12 +25,13 @@ class Courier:
             sparql.setQuery(query)
             sparql.setReturnFormat(JSON)
             results = sparql.query().convert()
+
         except Exception as e:
             print ("The wikidata endpoint is not answering")
             print(e)
             return
 
-        value = results['results']
+        value = results['results']['bindings']
         if value:
             return value
         else:
@@ -106,16 +108,21 @@ class Courier:
         """ % (year, year)
 
         res = self.__send_query(query)
+        if res:
+            res = res["bindings"][0]
 
-        return [
-            True,
-            [
+            return [
+                True,
                 [
-                    res['bindings'][0]['movieLabel']['value'],  # the movie name
-                    res['bindings'][0]['movie']['value']  # the Wikidata link
+                    [
+                        res['bindings'][0]['movieLabel']['value'],  # the movie name
+                        res['bindings'][0]['movie']['value']  # the Wikidata link
+                    ]
                 ]
             ]
-        ]
+        else:
+            return [True, [[self.no_wikidata]]]
+
 
 
     def __query_oscar_winner(self, response):
@@ -191,17 +198,20 @@ class Courier:
             }
         """ % (year, year)
         res = self.__send_query(query)
-        res = res["bindings"][0]
+        if res:
+            res = res["bindings"][0]
 
-        return [
-            True,
-            [
+            return [
+                True,
                 [
-                    res["actorLabel"]["value"],  # the director's name
-                    res["actor"]["value"]  # the Wikidata link
+                    [
+                        res["actorLabel"]["value"],  # the director's name
+                        res["actor"]["value"]  # the Wikidata link
+                    ]
                 ]
             ]
-        ]
+        else:
+            return [True, [[self.no_wikidata]]]
 
 
     def __query_movie_release_date(self, response):
@@ -220,11 +230,14 @@ class Courier:
         """ % (movie.lower())
 
         res = self.__send_query(query)
+        if res:
+            # contains a dictionary with all the movie information
+            movies = movie_answer(res, 'year')
 
-        # contains a dictionary with all the movie information
-        movies = movie_answer(res, 'year')
+            return [False, movies]
 
-        return [False, movies]
+        else:
+            return [True, [[self.no_wikidata]]]
 
 
     def __query_duration(self, response):
@@ -245,11 +258,14 @@ class Courier:
         """ % (movie.lower())
 
         res = self.__send_query(query)
+        if res:
+            # contains a dictionary with all the movie information
+            movies = movie_answer(res, 'duration')
 
-        # contains a dictionary with all the movie information
-        movies = movie_answer(res, 'duration')
+            return [False, movies]
 
-        return [False, movies]
+        else:
+            return [True, [[self.no_wikidata]]]
 
 
     def __query_genre(self, response):
@@ -270,11 +286,14 @@ class Courier:
         """ % (movie.lower())
 
         res = self.__send_query(query)
+        if res:
+            # contains a dictionary with all the movie information
+            movies = movie_answer(res, 'genreLabel')
 
-        # contains a dictionary with all the movie information
-        movies = movie_answer(res, 'genreLabel')
+            return [False, movies]
 
-        return [False, movies]
+        else:
+            return [True, [[self.no_wikidata]]]
 
 
     def __query_cast(self, response):
@@ -293,11 +312,15 @@ class Courier:
             }
         """ % (movie.lower())
         res = self.__send_query(query)
+        if res:
+            # contains a dictionary with all the movie information
+            movies = movie_answer(res, 'castLabel')
 
-        # contains a dictionary with all the movie information
-        movies = movie_answer(res, 'castLabel')
+            return [False, movies]
 
-        return [False, movies]
+        else:
+            return [True, [[self.no_wikidata]]]
+
 
 
     def __query_director(self, response):
@@ -316,11 +339,14 @@ class Courier:
             }
         """ % (movie.lower())
         res = self.__send_query(query)
+        if res:
+            # contains a dictionary with all the movie information
+            movies = movie_answer(res, 'directorLabel')
 
-        # contains a dictionary with all the movie information
-        movies = movie_answer(res, 'directorLabel')
+            return [False, movies]
 
-        return [False, movies]
+        else:
+            return [True, [[self.no_wikidata]]]
 
 
 def convert_date(sparql_timestamp):
