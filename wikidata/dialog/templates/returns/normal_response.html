@@ -8,24 +8,39 @@
     <div class="col text-right">
         <div class="row justify-content-end">
             <div class='alert alert-primary'>
-            {% if response is iterable and response is not string %}
-                <!-- check if response is just a list (with answers) -->
-                {% for answer in response %}
+                {% for resp in response %}
+
                     {% if response|length == 1 %}
                         <!-- check if response is a single list item -->
-                        {{ answer }}
+                        {% if resp|length == 2 %}
+                            <!-- response has an href link (single answer from Wikidata) -->
+                            <a href="{{ resp.1 }}">{{ resp.0 }}</a>
+                        {% else %}
+                            <!-- response is just a string (response from DialogFlow) -->
+                            {{ resp.0 }}
+                        {% endif %}
+
                     {% elif forloop.counter < response|length %}
                         <!-- append list items by 'and' -->
-                        {{ answer }} and
+                        {% if resp|length == 2 %}
+                            <!-- response has an href link (single answer from Wikidata) -->
+                            <a href="{{ resp.1 }}">{{ resp.0 }}</a> and
+                        {% else %}
+                            <!-- response is just a string (response from DialogFlow) -->
+                            {{ resp.0 }} and
+                        {% endif %}
+
                     {% else %}
                         <!-- end final list item with a period -->
-                        {{ answer }}.
+                        {% if resp|length == 2 %}
+                            <!-- response has an href link (single answer from Wikidata) -->
+                            <a href="{{ resp.1 }}">{{ resp.0 }}</a>.
+                        {% else %}
+                            <!-- response is just a string (response from DialogFlow) -->
+                            {{ resp.0 }}.
+                        {% endif %}
                     {% endif %}
                 {% endfor %}
-            {% else %}
-                <!-- response is just a string (response from DialogFlow) -->
-                {{ response }}
-            {% endif %}
             </div>
         </div>
     </div>
