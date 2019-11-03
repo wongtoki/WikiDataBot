@@ -11,7 +11,7 @@
                 {% for answer in response %}
                     {% if response|length == 1 %}
                         <!-- check if response is a single list item -->
-                        {{ answer }}
+                        {{ answer }}.
                     {% elif forloop.counter < response|length %}
                         <!-- append list items by 'and' -->
                         {{ answer }} and

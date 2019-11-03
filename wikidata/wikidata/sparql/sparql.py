@@ -21,10 +21,13 @@ class Courier:
             results = sparql.query().convert()
         except:
             print ("The wikidata endpoint is not answering")
+            # TODO: maybe we want to return a different message here?
+            # TODO: now the message is always: 'Sorry, I don't know when Avatar was released'
+            # TODO: could be: 'Sorry the connection to the Wikidata database failed'
             return
 
         value = results['results']
-        if (value):
+        if value:
             return value
         else:
             print("\n query didnt work")
@@ -78,8 +81,9 @@ class Courier:
         movie_string = response["parameters"]["fields"]["movie_name"]["stringValue"]
         return movie_string
 
-    # Return the movie that won the Oscar in a given year
+
     def __query_oscar_movies(self, response):
+        '''Return the movie that won the Oscar in a given year'''
         year = self.__get_year(response)
 
         query = """
@@ -107,10 +111,9 @@ class Courier:
             ]
         ]
 
-    # Return the Oscar winners for a given year
-    # Will return an array containing both male and female
-    # eg ['Rami Malek', 'Olivia Colman']
+
     def __query_oscar_winner(self, response):
+        '''Return the Oscar winners for a given year'''
         year = self.__get_year(response)
 
         query_male_actor = """
@@ -162,37 +165,9 @@ class Courier:
             ]
         ]
 
-    def __query_movie_release_date(self, response):
-        movie = self.__get_movie_name(response)
-        query = """
-            SELECT ?item ?itemLabel ?year
-            WHERE
-            {
-            ?item wdt:P31/wdt:P279* wd:Q2431196 .
-            ?item wdt:P1476 ?title .
-            ?item wdt:P577 ?year .
-            FILTER contains(lcase(str(?title)),"%s") .
-            SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
-            }
-        """ % (movie.lower())
-
-        res = self.__send_query(query)
-
-        results = [False,[]] # I am not sure about this line. # TODO: ??
-
-        for v in res["bindings"]:
-            # convert year to Python dateobject
-            date = convert_date(v["year"]["value"])
-
-            output = {
-                "moviename": v["itemLabel"]["value"],
-                "year": date.year
-            }
-            results[1].append(output)
-
-        return results
 
     def __query_oscar_winner_director(self, response):
+        '''Return the Oscar winning director for a given year'''
         year = self.__get_year(response)
         query = """
             SELECT ?actor ?actorLabel ?date ?forWork ?forWorkLabel
@@ -222,45 +197,83 @@ class Courier:
             ]
         ]
 
+
+    # TODO: follow four queries all use the same format..
+    def __query_movie_release_date(self, response):
+        '''Return the release date for a given movie'''
+        movie = self.__get_movie_name(response)
+        query = """
+            SELECT ?item ?itemLabel ?year
+            WHERE
+            {
+            ?item wdt:P31/wdt:P279* wd:Q2431196 .
+            ?item wdt:P1476 ?title .
+            ?item wdt:P577 ?year .
+            FILTER contains(lcase(str(?title)),"%s") .
+            SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+            }
+        """ % (movie.lower())
+
+        res = self.__send_query(query)
+
+        # contains a dictionary with all the movie information
+        movies = movie_answer(res, "year")
+
+        return [False, movies]
+
+
     def __query_genre(self, response):
+        '''Return the genre for a given movie'''
         movie = self.__get_movie_name(response)
 
         query = """
-            SELECT ?item ?itemLabel ?genreLabel
+            SELECT ?item ?itemLabel ?genreLabel ?year
             WHERE
             {
             ?item wdt:P31/wdt:P279* wd:Q2431196 .
             ?item wdt:P1476 ?title .
             ?item wdt:P136 ?genre .
+            ?item wdt:P577 ?year .
             FILTER contains(lcase(str(?title)),"%s") .
             SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
             }
         """ % (movie.lower())
 
         res = self.__send_query(query)
-        res = res["bindings"][0]
-        return [False, res] #Change this line
+
+        # contains a dictionary with all the movie information
+        movies = movie_answer(res, "genreLabel")
+
+        return [False, movies]
+
 
     def __query_duration(self, response):
+        '''Return the duration for a given movie'''
         movie = self.__get_movie_name(response)
 
         query = """
-            SELECT ?item ?itemLabel ?duration
+            SELECT ?item ?itemLabel ?duration ?year
             WHERE
             {
             ?item wdt:P31/wdt:P279* wd:Q2431196 .
             ?item wdt:P1476 ?title .
             ?item wdt:P2047 ?duration .
+            ?item wdt:P577 ?year .
             FILTER contains(lcase(str(?title)),"%s") .
             SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
             }
         """ % (movie.lower())
 
         res = self.__send_query(query)
-        res = res["bindings"][0]
-        return [False, res] #Change this line
+
+        # contains a dictionary with all the movie information
+        movies = movie_answer(res, 'duration')
+
+        return [False, movies]
+
 
     def __query_cast(self, response):
+        '''Return the cast for a given movie'''
         movie = self.__get_movie_name(response)
         query = """
             SELECT ?item ?itemLabel ?castLabel ?year
@@ -277,11 +290,13 @@ class Courier:
         res = self.__send_query(query)
 
         # contains a dictionary with all the movie information
-        movies = movie_answer(res, 'cast')
+        movies = movie_answer(res, 'castLabel')
 
         return [False, movies]
 
+
     def __query_director(self, response):
+        '''Return the director for a given movie'''
         movie = self.__get_movie_name(response)
         query = """
             SELECT ?item ?itemLabel ?directorLabel ?year
@@ -298,19 +313,18 @@ class Courier:
         res = self.__send_query(query)
 
         # contains a dictionary with all the movie information
-        movies = movie_answer(res, 'director')
+        movies = movie_answer(res, 'directorLabel')
 
         return [False, movies]
+
 
 def convert_date(sparql_timestamp):
     '''convert JSON timestamp to Python date object'''
     return datetime.datetime.strptime(sparql_timestamp, '%Y-%m-%dT%H:%M:%S%fZ')
 
 
-def movie_answer(res, intent_name):
+def movie_answer(res, label):
     '''returns a dictionary with all necessary information for HTML dropdown-select'''
-
-    label = intent_name + 'Label'
 
     movies = {}
     for movie in res["bindings"]:
@@ -330,6 +344,14 @@ def movie_answer(res, intent_name):
         q_number = link.split('/')[-1]
         answer = movie[label]['value']
 
+        if label == "year":
+            '''exception for query_movie_release_date, to convert to Python dateobject'''
+            date = convert_date(answer)
+            answer = date.strftime("%A %d %B, %Y")
+        elif label == "duration":
+            '''exception for duration, to append "minutes" after the answer'''
+            answer = answer + ' minutes'
+
         # append the answer to the set in the dictionary
         # using a set, because the answers have to be unique
         movies[q_number]['answer'].add(answer)
@@ -339,6 +361,7 @@ def movie_answer(res, intent_name):
         movies[key]['answer_string'] = '|'.join(movies[key]['answer'])
 
     return movies
+
 
 if __name__ == "__main__":
     courior = Courier()
