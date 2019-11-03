@@ -48,8 +48,8 @@ def wikidata_dialog(request):
             if 'post_search' in request.POST:
                 '''A question has been asked'''
 
-                # the returned response in HTML in a dictionary
-                res = return_response(request)
+                # the returned dialog in HTML-format
+                dialog = return_response(request)
 
             elif 'post_entity_title' in request.POST:
                 '''The user made a dropdown selection'''
@@ -57,18 +57,18 @@ def wikidata_dialog(request):
                 intent_value = request.POST.getlist('post_entity[]')
                 movie_title = request.POST['post_entity_title']
 
+                '''debugging
                 print('intent_value', intent_value)
                 print(type(intent_value))
                 print(intent_value[0])
-
+                '''
 
                 if intent_value[0]:
                     '''A movie was selected by the user'''
 
                     # what HTML to return to user interface
-                    dialog = render_to_string('returns/normal_response.html',
+                    dialog = render_to_string('returns/dropdown_selection_made.html',
                                               {'question': movie_title, 'response': intent_value})
-                    res = {'response': dialog}
 
                 else:
                     '''User selected the 'other' option in the dropdown-select'''
@@ -78,7 +78,9 @@ def wikidata_dialog(request):
                     # what HTML to return to user interface
                     dialog = render_to_string('returns/normal_response.html',
                                               {'question': movie_title, 'response': bot_resp})
-                    res = {'response': dialog}
+
+
+            res = {'response': dialog}
 
             return HttpResponse(json.dumps(res), 'application/json')
 
@@ -92,59 +94,37 @@ def return_response(form):
     courier = Courier()
 
     user_input = form.POST['post_search']
-    random_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
-    json_resp = agent.ask_json(user_input, sessionId=random_string)
+    json_resp = agent.ask_json(user_input, sessionId=create_random_string())
 
     parsed = json.loads(json_resp.text)
     boolean, bot_resp = courier.deliver(parsed)
 
+    '''for debugging
+    print('bot_resp')
     print(bot_resp)
+    '''
 
     if boolean:
-        '''The string response from DialogFlow should be returned'''
+        '''Response is a lists of lists, with either ['string'] or [answer, link]'''
 
-        if len(bot_resp) == 1:
-            '''One string should be returned'''
-            href = False # boolean value for a link
+        if bot_resp[0][0] == '':
+            '''Response is non-valid, Courier delivered an empty string'''
+            print('There is an empty response from the Courier..')
 
-            if bot_resp[0]:
-                '''The response is valid'''
-                for answer in bot_resp:
-                    if isinstance(answer, str):
-                        '''the answer is just a simple string (provided by Dialogflow)'''
-                        textual_response = answer
-                    elif isinstance(answer, list):
-                        '''A link to the answer can be provided (it is an actual answer provided by Wikidata)'''
-                        textual_response = answer[0]
-                        href = answer[1]
-            else:
-                '''The response is not valid'''
-                print('There is an empty response from the Courier..')
+            responses = [
+                "Sorry, I did not get that.",
+                "Could you repeat that?",
+                "I did not understand, can you repeat?",
+                "I don't understand that.",
+                "Sorry, could you say that again?"
+            ]
 
-                responses = [
-                    "Sorry, I did not get that.",
-                    "Could you repeat that?",
-                    "I did not understand, can you repeat?",
-                    "I don't understand that.",
-                    "Sorry, could you say that again?"
-                ]
+            # returning a response in the correct format
+            bot_resp = [[random.choice(responses)]]
 
-                textual_response = random.choice(responses)
-
-            # what HTML to return to user interface
-            dialog = render_to_string('returns/normal_response.html',
-                                      {'question': user_input, 'response': textual_response, 'link': href})
-
-        else:
-            '''Multiple answers should be returned'''
-
-            # TODO: dit kan verwerkt worden in normal_response!!!
-            # TODO: manier vinden om dat ook te doen met die link
-            # TODO: sowieso willen we herhaling van de vraag in de response
-
-            # what HTML to return to user interface
-            dialog = render_to_string('returns/multiple_items.html',
-                                      {'question': user_input, 'li_actors': bot_resp})
+        # what HTML to return to user interface
+        dialog = render_to_string('returns/normal_response.html',
+                                  {'question': user_input, 'response': bot_resp})
 
     else:
         '''A dropdown select with movie choices should be returned'''
@@ -158,8 +138,10 @@ def return_response(form):
         # what HTML to return to user interface
         dialog = render_to_string('returns/dropdown_select.html', {'question': user_input, 'response': response_question, 'selections': ordered})
 
-    response = {'response': dialog}
 
-    return response
+    return dialog
 
-
+def create_random_string():
+    '''creates a random string for Dialogflow Agent'''
+    random_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+    return random_string
