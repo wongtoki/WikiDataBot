@@ -129,17 +129,30 @@ def return_response(form):
     else:
         '''A dropdown select with movie choices should be returned'''
 
-        response_question = 'Please select the correct movie.'
+        if bot_resp:
+            '''Response is valid'''
 
-        # this orders the movies by year
-        ordered = OrderedDict(sorted(bot_resp.items(),
-                                     key=lambda x: getitem(x[1], 'year')))
+            response_question = 'Please select the correct movie.'
 
-        # what HTML to return to user interface
-        dialog = render_to_string('returns/dropdown_select.html', {'question': user_input, 'response': response_question, 'selections': ordered})
+            # this orders the movies by year
+            ordered = OrderedDict(sorted(bot_resp.items(),
+                                         key=lambda x: getitem(x[1], 'year')))
 
+            # what HTML to return to user interface
+            dialog = render_to_string('returns/dropdown_select.html', {'question': user_input, 'response': response_question, 'selections': ordered})
 
-    return dialog
+        else:
+            '''Response is an empty dictionary (for instance: no movies were found)'''
+
+            # returning a response in the correct format
+            bot_resp = [['I could not find any movie with that name.']]
+
+            # what HTML to return to user interface
+            dialog = render_to_string('returns/normal_response.html',
+                                      {'question': user_input, 'response': bot_resp})
+
+        return dialog
+
 
 def create_random_string():
     '''creates a random string for Dialogflow Agent'''
