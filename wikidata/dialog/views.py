@@ -53,10 +53,12 @@ def wikidata_dialog(request):
                 intent_value = request.POST.getlist('post_entity[]')
                 movie_title = request.POST['post_entity_title']
                 movie_href = request.POST['post_entity_link']
+                movie_string = request.POST['post_entity_string']
 
                 '''for debugging
                 print('intent_value', intent_value)
                 print(type(intent_value))
+                print(intent_value)
                 print(intent_value[0])
                 '''
 
@@ -65,7 +67,8 @@ def wikidata_dialog(request):
 
                     # what HTML to return to user interface
                     dialog = render_to_string('returns/dropdown_selection_made.html',
-                                              {'question': movie_title, 'response': intent_value, 'link': movie_href})
+                                              {'question': movie_title, 'response': intent_value,
+                                               'link': movie_href, 'sentence': movie_string})
 
                 else:
                     '''User selected the 'other' option in the dropdown-select'''

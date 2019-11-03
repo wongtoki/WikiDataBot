@@ -49,6 +49,7 @@ $( document ).on('click', '#submit_movie_select', function(event){
             post_entity: answer_list,
             post_entity_title: $('#post_selected_movie option:selected').text(),
             post_entity_link: $('#post_selected_movie option:selected').attr('link'),
+            post_entity_string: $('#post_selected_movie option:selected').attr('string'),
         };
         form_response(url_id, method_id, data_items);
 

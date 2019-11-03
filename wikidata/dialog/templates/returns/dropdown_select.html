@@ -12,7 +12,7 @@
                             <select class="form-control" id="post_selected_movie" required>
                                 <option value="" disabled selected hidden>Select movie...</option>
                                 {% for q_number, movie in selections.items %}}
-                                    <option value="{{ movie.answer_string }}" id="{{ q_number }}" link="{{ movie.href }}">{{ movie.title }} ({{ movie.year }})</option>
+                                    <option value="{{ movie.answer_string }}" id="{{ q_number }}" link="{{ movie.href }}" string="{{ movie.nl_string }}">{{ movie.title }} ({{ movie.year }})</option>
                                 {% endfor %}
                                 <option value="">Other</option>
                             </select>

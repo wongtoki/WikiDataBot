@@ -15,6 +15,11 @@ class Courier:
         endpoint_url = "https://query.wikidata.org/sparql"
 
         try:
+            # TODO: change the library
+            # create the request
+            # data = requests.get('https://query.wikidata.org/sparql',
+            #                     params={'query': query, 'format': 'json'}).json()
+
             sparql = SPARQLWrapper(endpoint_url)
             sparql.setQuery(query)
             sparql.setReturnFormat(JSON)
@@ -217,7 +222,7 @@ class Courier:
         res = self.__send_query(query)
 
         # contains a dictionary with all the movie information
-        movies = movie_answer(res, "year")
+        movies = movie_answer(res, 'year')
 
         return [False, movies]
 
@@ -267,7 +272,7 @@ class Courier:
         res = self.__send_query(query)
 
         # contains a dictionary with all the movie information
-        movies = movie_answer(res, "genreLabel")
+        movies = movie_answer(res, 'genreLabel')
 
         return [False, movies]
 
@@ -360,6 +365,24 @@ def movie_answer(res, label):
     for key, value in movies.items():
         '''convert the set with answers to a pipe-delimited string in order to convert to JS array'''
         movies[key]['answer_string'] = '|'.join(movies[key]['answer'])
+
+
+    '''append a nice natural-language string in the front-end'''
+    nl_strings = {
+        "year": ' was released on',
+        "duration": ' lasts for',
+        "genreLabel": ["'s genre is", "'s genres are"],
+        "castLabel": ["'s cast is", "'s cast are"],
+        "directorLabel": "'s director is",
+     }
+    for key, value in movies.items():
+        if label == "genreLabel" or label == 'castLabel':
+            if len(movies[key]['answer']) > 1:
+                movies[key]['nl_string'] = nl_strings[label][1]
+            else:
+                movies[key]['nl_string'] = nl_strings[label][0]
+        else:
+            movies[key]['nl_string'] = nl_strings[label]
 
     return movies
 
