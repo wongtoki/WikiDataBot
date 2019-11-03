@@ -359,15 +359,9 @@ def movie_answer(res, label):
         # using a set, because the answers have to be unique
         movies[q_number]['answer'].add(answer)
 
-    print('hier2')
-    print(movies)
-
     for key, value in movies.items():
         '''convert the set with answers to a pipe-delimited string in order to convert to JS array'''
         movies[key]['answer_string'] = '|'.join(movies[key]['answer'])
-
-    print('hier3')
-    print(movies)
 
     return movies
 
