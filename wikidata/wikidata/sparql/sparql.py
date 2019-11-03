@@ -66,7 +66,9 @@ class Courier:
         # Calling the function assigned to the dictionary key
         try:
             sparql_result = packages[intent_name](response)
-        except:
+        except Exception as e:
+            print('error', e)
+
             # this is a list of lists, which is the same format as all the other answers, for HTML front-end looping
             return [True, [[default_response]]]
 
@@ -335,9 +337,9 @@ def movie_answer(res, label):
         date = convert_date(movie["year"]["value"])
 
         # fill a dictionary w/ q_number as identifier with movie information
-        movies[q_number] = {'title': name, 'year': date.year, 'href': link, 'answer': set()}
+        movies[q_number] = {'title': name, 'year': date.year, 'href': link, 'answer': set(), 'answer_string': ''}
 
-    for movie in res['bindings']:
+    for movie in res["bindings"]:
         '''collect the actual answer in a list, because it might be > 1'''
         # get the identifier (q_number)
         link = movie['item']['value']
@@ -345,12 +347,9 @@ def movie_answer(res, label):
         answer = movie[label]['value']
 
         if label == "year":
-            '''exception for query_movie_release_date, to convert to Python dateobject'''
+            '''exception for query_movie_release_date, because the answer is the date'''
             date = convert_date(answer)
-            # wanted to do a more beautiful format, but there's too much noise in the Wikidata
-            # there are multiple different dates for one movie
-            # answer = date.strftime("%A %d %B, %Y")
-            answer = date.year
+            answer = date.strftime("%A %d %B, %Y")
 
         elif label == "duration":
             '''exception for duration, to append "minutes" after the answer'''
@@ -360,9 +359,15 @@ def movie_answer(res, label):
         # using a set, because the answers have to be unique
         movies[q_number]['answer'].add(answer)
 
+    print('hier2')
+    print(movies)
+
     for key, value in movies.items():
         '''convert the set with answers to a pipe-delimited string in order to convert to JS array'''
         movies[key]['answer_string'] = '|'.join(movies[key]['answer'])
+
+    print('hier3')
+    print(movies)
 
     return movies
 
