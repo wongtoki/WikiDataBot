@@ -19,11 +19,9 @@ class Courier:
             sparql.setQuery(query)
             sparql.setReturnFormat(JSON)
             results = sparql.query().convert()
-        except:
+        except Exception as e:
             print ("The wikidata endpoint is not answering")
-            # TODO: maybe we want to return a different message here?
-            # TODO: now the message is always: 'Sorry, I don't know when Avatar was released'
-            # TODO: could be: 'Sorry the connection to the Wikidata database failed'
+            print(e)
             return
 
         value = results['results']
