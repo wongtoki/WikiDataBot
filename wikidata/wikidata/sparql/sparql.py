@@ -31,8 +31,8 @@ class Courier:
             print(e)
             return
 
-        value = results['results']['bindings']
-        if value:
+        value = results['results']
+        if value['bindings']:
             return value
         else:
             print("\n query didnt work")
@@ -72,7 +72,7 @@ class Courier:
         try:
             sparql_result = packages[intent_name](response)
         except Exception as e:
-            print('error', e)
+            print('error in calling the assigned sparql_result', e)
 
             # this is a list of lists, which is the same format as all the other answers, for HTML front-end looping
             return [True, [[default_response]]]
