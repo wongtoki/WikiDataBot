@@ -63,7 +63,8 @@ class Courier:
         try:
             sparql_result = packages[intent_name](response)
         except:
-            return [True, [default_response]]
+            # this is a list of lists, which is the same format as all the other answers, for HTML front-end looping
+            return [True, [[default_response]]]
 
         return sparql_result
 
@@ -320,18 +321,22 @@ def movie_answer(res, intent_name):
         date = convert_date(movie["year"]["value"])
 
         # fill a dictionary w/ q_number as identifier with movie information
-        movies[q_number] = {'title': name, 'year': date.year, 'href': link, 'answer': ''}
+        movies[q_number] = {'title': name, 'year': date.year, 'href': link, 'answer': set()}
 
     for movie in res['bindings']:
-        '''append each actual answer to a long string, because the amount of answers might be > 1'''
+        '''collect the actual answer in a list, because it might be > 1'''
         # get the identifier (q_number)
         link = movie['item']['value']
         q_number = link.split('/')[-1]
         answer = movie[label]['value']
 
-        # append the answer to the a long string in the dictionary
-        # this way we can make a javascript array from this string
-        movies[q_number]['answer'] += answer + '|'
+        # append the answer to the set in the dictionary
+        # using a set, because the answers have to be unique
+        movies[q_number]['answer'].add(answer)
+
+    for key, value in movies.items():
+        '''convert the set with answers to a pipe-delimited string in order to convert to JS array'''
+        movies[key]['answer_string'] = '|'.join(movies[key]['answer'])
 
     return movies
 
