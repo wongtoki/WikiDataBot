@@ -46,7 +46,6 @@ def wikidata_dialog(request):
 
                 # the returned dialog in HTML-format
                 dialog = return_response(request)
-                print(dialog)
 
             elif 'post_entity_title' in request.POST:
                 '''The user made a dropdown selection'''
