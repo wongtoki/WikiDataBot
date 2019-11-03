@@ -14,8 +14,13 @@
                         <!-- check if response is a single list item -->
                         {{ answer }}.
                     {% elif forloop.counter < response|length %}
-                        <!-- append list items by 'and' -->
-                        {{ answer }} and
+                        {% if forloop.revcounter0 > 1 %}
+                            <!-- append all other list items by ',' -->
+                            {{ answer }},
+                        {% else %}
+                        <!-- append one before last list items by 'and' -->
+                            {{ answer }} and
+                        {% endif %}
                     {% else %}
                         <!-- end final list item with a period -->
                         {{ answer }}.
