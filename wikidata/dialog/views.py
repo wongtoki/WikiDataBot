@@ -152,7 +152,7 @@ def return_response(form):
                 '''Multiple results should be returned in a dropdown-select'''
                 # this orders the movies by year
                 ordered = OrderedDict(sorted(bot_resp.items(),
-                                             key=lambda x: getitem(x[1], 'year')))
+                                             key=lambda x: getitem(x[1], 'title')))
 
                 # what HTML to return to user interface
                 dialog = render_to_string('returns/dropdown_select.html', {'question': user_input, 'response': response_question, 'selections': ordered})

@@ -41,7 +41,6 @@ $( document ).on('click', '#submit_movie_select', function(event){
         var answer_string = $('#post_selected_movie').val();
         var answer_list = answer_string.split("|");
 
-
         // Ajax call;
         var url_id = $('#movie_select').prop('action');
         var method_id = $('#movie_select').prop('method');
