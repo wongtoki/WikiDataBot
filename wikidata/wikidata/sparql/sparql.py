@@ -4,6 +4,7 @@ import json
 import urllib.parse as encodeurl
 from SPARQLWrapper import SPARQLWrapper, JSON
 import datetime
+import re
 
 class Courier:
 
@@ -16,9 +17,7 @@ class Courier:
 
         try:
             # create the request
-
             params = f"?format=json&query={encodeurl.quote(query)}"
-
             results = requests.get(endpoint_url+params).json()
 
             '''Sparql wrapper
@@ -90,6 +89,11 @@ class Courier:
 
     def __get_movie_name(self, response):
         movie_string = response["parameters"]["fields"]["movie_name"]["stringValue"]
+        '''removing all exclamation marks, question marks and punctuation.'''
+        patterns = ['[^!.?]+']
+        for p in patterns:
+            movie_string = re.findall(p, movie_string)[0]
+        # movie_string = movie_string.replace("?", "") # removing all question marks
         return movie_string
 
 
