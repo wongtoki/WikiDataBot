@@ -213,3 +213,7 @@ section {
 #dropdown_select {
     margin-top: 60px;
 }
+
+#question_box {
+    padding: 0px;
+}
