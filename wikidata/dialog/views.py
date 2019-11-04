@@ -133,12 +133,29 @@ def return_response(form):
 
             response_question = 'Please select the correct movie.'
 
-            # this orders the movies by year
-            ordered = OrderedDict(sorted(bot_resp.items(),
-                                         key=lambda x: getitem(x[1], 'year')))
+            if len(bot_resp) == 1:
+                '''There is only one result, so no dropdown should be returned'''
 
-            # what HTML to return to user interface
-            dialog = render_to_string('returns/dropdown_select.html', {'question': user_input, 'response': response_question, 'selections': ordered})
+                for q_number, value in bot_resp.items():
+                    movie_title = value['title']
+                    intent_value = value['answer']
+                    movie_href = value['href']
+                    movie_string = value['nl_string']
+
+                # what HTML to return to user interface
+                dialog = render_to_string('returns/dropdown_selection_made.html',
+                                          {'question': user_input, 'response': intent_value,
+                                           'link': movie_href, 'sentence': movie_string,
+                                           'answer': movie_title})
+
+            else:
+                '''Multiple results should be returned in a dropdown-select'''
+                # this orders the movies by year
+                ordered = OrderedDict(sorted(bot_resp.items(),
+                                             key=lambda x: getitem(x[1], 'year')))
+
+                # what HTML to return to user interface
+                dialog = render_to_string('returns/dropdown_select.html', {'question': user_input, 'response': response_question, 'selections': ordered})
 
         else:
             '''Response is an empty dictionary (for instance: no movies were found)'''

@@ -2,13 +2,21 @@
 <div class="row">
     <div class="col text-left">
         <div class="row justify-content-start">
-            <div class='alert alert-light'>{{ question }}</div>
+            <div class='alert alert-light'>
+                {{ question }}
+            </div>
         </div>
     </div>
     <div class="col text-right">
         <div class="row justify-content-end">
             <div class='alert alert-primary'>
-                <a href="{{ link }}" target="_blank">{{ question }}</a>{{ sentence }}
+                <a href="{{ link }}" target="_blank">
+                    {% if answer %}
+                        {{ answer }}
+                    {% else %}
+                        {{ question }}
+                    {% endif %}
+                </a>{{ sentence }}
                 {% for answer in response %}
                     {% if response|length == 1 %}
                         <!-- check if response is a single list item -->
