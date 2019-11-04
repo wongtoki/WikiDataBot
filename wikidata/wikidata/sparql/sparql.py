@@ -2,7 +2,6 @@ import requests
 from datetime import datetime
 import json
 import urllib.parse as encodeurl
-from SPARQLWrapper import SPARQLWrapper, JSON
 import datetime
 import re
 
