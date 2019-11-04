@@ -94,6 +94,11 @@ class Courier:
         for p in patterns:
             movie_string = re.findall(p, movie_string)[0]
         # movie_string = movie_string.replace("?", "") # removing all question marks
+
+        for c in movie_string:
+            if c == '\"':
+                c = ''
+        
         print('movie_name from DialogFlow:', movie_string)
         return movie_string
 
