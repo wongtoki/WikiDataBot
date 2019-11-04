@@ -90,12 +90,20 @@ class Courier:
     def __get_movie_name(self, response):
         movie_string = response["parameters"]["fields"]["movie_name"]["stringValue"]
         print('movie_string from DialogFlow:', movie_string)
+
         '''removing all exclamation marks, question marks and punctuation.'''
         patterns = ['[^!.?]+']
         for p in patterns:
             movie_string = re.findall(p, movie_string)[0]
-        # movie_string = movie_string.replace("?", "") # removing all question marks
-        print('movie_string after processed movie_name:', movie_string)
+
+        '''removing the double and single quotations'''
+        s = movie_string
+        for c in s:
+            if c == '"' or c == "'":
+                s = s.replace('"', '')
+        movie_string = s
+
+        print('movie_name after processing:', movie_string)
         return movie_string
 
 
