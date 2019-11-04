@@ -15,15 +15,16 @@ class Courier:
         endpoint_url = "https://query.wikidata.org/sparql"
 
         try:
-            # TODO: why use the SPARQLWrapper library instead of the normal requests?
             # create the request
-            # data = requests.get('https://query.wikidata.org/sparql',
-            #                     params={'query': query, 'format': 'json'}).json()
+            results = requests.get('https://query.wikidata.org/sparql',
+                                params={'query': query, 'format': 'json'}).json()
 
+            '''Sparql wrapper
             sparql = SPARQLWrapper(endpoint_url)
             sparql.setQuery(query)
             sparql.setReturnFormat(JSON)
             results = sparql.query().convert()
+            '''
 
         except Exception as e:
             # TODO: we sould try to run it in 5 seconds again, see if it works then :D
