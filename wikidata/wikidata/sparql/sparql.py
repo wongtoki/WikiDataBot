@@ -16,8 +16,10 @@ class Courier:
 
         try:
             # create the request
-            results = requests.get('https://query.wikidata.org/sparql',
-                                params={'query': query, 'format': 'json'}).json()
+
+            params = f"?format=json&query={encodeurl.quote(query)}"
+
+            results = requests.get(endpoint_url+params).json()
 
             '''Sparql wrapper
             sparql = SPARQLWrapper(endpoint_url)
