@@ -1,0 +1,47 @@
+
+<div class="row">
+    <div class="col text-left">
+        <div class="row justify-content-start">
+            <div class='alert alert-light'>{{ question }}</div>
+        </div>
+    </div>
+    <div class="col text-right">
+        <div class="row justify-content-end">
+            <div class='alert alert-primary'>
+                {% for resp in response %}
+
+                    {% if response|length == 1 %}
+                        <!-- check if response is a single list item -->
+                        {% if resp|length == 2 %}
+                            <!-- response has an href link (single answer from Wikidata) -->
+                            <a href="{{ resp.1 }}" target="_blank">{{ resp.0 }}</a>
+                        {% else %}
+                            <!-- response is just a string (response from DialogFlow) -->
+                            {{ resp.0 }}
+                        {% endif %}
+
+                    {% elif forloop.counter < response|length %}
+                        <!-- append list items by 'and' -->
+                        {% if resp|length == 2 %}
+                            <!-- response has an href link (single answer from Wikidata) -->
+                            <a href="{{ resp.1 }}" target="_blank">{{ resp.0 }}</a> and
+                        {% else %}
+                            <!-- response is just a string (response from DialogFlow) -->
+                            {{ resp.0 }} and
+                        {% endif %}
+
+                    {% else %}
+                        <!-- end final list item with a period -->
+                        {% if resp|length == 2 %}
+                            <!-- response has an href link (single answer from Wikidata) -->
+                            <a href="{{ resp.1 }}" target="_blank">{{ resp.0 }}</a>.
+                        {% else %}
+                            <!-- response is just a string (response from DialogFlow) -->
+                            {{ resp.0 }}.
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>

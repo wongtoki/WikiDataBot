@@ -1,0 +1,92 @@
+<!DOCTYPE HTML>
+
+<html>
+    {% block head %}
+    <head>
+
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>Wikidata QA bot</title>
+        <!-- Custom CSS -->
+        {% load static %}
+        <link rel="stylesheet" type="text/css" href="{% static 'dialog/content/dialog.css' %}">
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <!-- FontAwesome icons -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <!-- Jquery script-->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <!-- Chart Js-->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+        <!-- Fonts -->
+        <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,600|Roboto:100,300&display=swap" rel="stylesheet">
+    </head>
+    {% endblock %}
+
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="">
+                <img src="{% static "dialog/images/moonbase-icon.png" %}"  width="30" height="30"/>
+                Moonbase
+            </a>
+        </nav>
+
+        <div class="container-fluid" id="all">
+            <div class="row">
+                <div class="col-md-3  text-right" id="instruction">
+                    <h3>Movies</h3>
+                    <p>Type a question regarding movies and see if our bot can provide an answer!</p>
+                    <h6>Example questions</h6>
+                    <p> Who is the director of The Terminator?<br>
+                        Who won the oscars in 2014?<br>
+                        When was Selma released?<br>
+                        Who is the oscar winner for best director in 2006?<br>
+                        Give me the film that won the oscar in 2011<br>
+                        Who is in the cast of Batman?<br>
+                        Can you tell me of which genre is the movie Interstellar<br>
+                        How many minutes does Django last?
+                    </p>
+
+                </div>
+                <div class="col-md-9">
+                    <div class="container-fluid">
+                        <div class="interactive" id="qa_dialog">
+                            <div class="spinner-border text-primary" role="status" style="display:none">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+
+                        <form action="wikidata_dialog/" class="form" method="POST" id="qa_query">
+                            <div class="row justify-content-around" id="form-input">
+                                <div class="col">
+                                    {{  form.as_p }}
+                                </div>
+                                <div class="col">
+                                    <button class="btn btn-primary" id="submit_qa_query">Ask</button>
+                                </div>
+                            </div>
+                        </form>
+                        <div class="row justify-content-around" id="qa_response"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <br>
+        <hr/>
+            <footer>
+            </footer>
+        </div>
+
+
+        {% block scripts %}
+            <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+
+            <script src="{% static 'dialog/scripts/dialog.js' %}"></script>
+            <script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+        {% endblock %}
+
+    </body>
+</html>
