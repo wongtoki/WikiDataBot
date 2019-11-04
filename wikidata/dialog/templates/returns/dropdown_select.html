@@ -14,7 +14,7 @@
                                 {% for q_number, movie in selections.items %}}
                                     <option value="{{ movie.answer_string }}" id="{{ q_number }}" link="{{ movie.href }}" string="{{ movie.nl_string }}">{{ movie.title }} ({{ movie.year }})</option>
                                 {% endfor %}
-                                <option value="">Other</option>
+                                <option value="" id="" link="" string="">Other</option>
                             </select>
                         </div>
                         <div class="col-md-6">
