@@ -14,13 +14,13 @@ pip install virtualenv
 virtualenv venv
 ```
 
-3. Activate the virutual environment 
+3. Activate the virutual environment
 
 ```
 source venv/bin/activate
 ```
 
-4. Install the dependencies in requirements.txt
+4. Install the dependencies in wikidata/requirements.txt
 
 ```
 cd wikidata
@@ -34,3 +34,5 @@ python3 manage.py runserver
 ```
 
 6. Go to this webpage: http://127.0.0.1:8000/ or http://localhost:8000/
+
+7. A live demo can also be found at https://louisdebruijn.me/wikidata
