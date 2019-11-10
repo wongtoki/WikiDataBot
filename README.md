@@ -1,4 +1,4 @@
-# Wikidata front-end
+# Question answering system
 
 Requires Python >= 3.6.9
 
