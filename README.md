@@ -36,3 +36,8 @@ python3 manage.py runserver
 6. Go to this webpage: http://127.0.0.1:8000/ or http://localhost:8000/
 
 7. A live demo can also be found at https://louisdebruijn.me/wikidata
+
+###Archived for security reasons.
+
+
+
